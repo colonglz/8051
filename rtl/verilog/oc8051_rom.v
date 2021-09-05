@@ -60,6 +60,10 @@
 // prepared header
 //
 //
+
+// synopsys translate_off
+`include "oc8051_timescale.v"
+// synopsys translate_on
 `include "oc8051_defines.v"
 
 module oc8051_rom (rst, clk, addr, ea_int, data_o);
@@ -72,13 +76,31 @@ input [15:0] addr;
 output ea_int;
 output [31:0] data_o;
 
-reg [31:0] data_o;
+//reg [31:0] data_o;
 wire ea;
 
 reg ea_int;
 
+`ifdef OC8051_Altera_ROM
 
-`ifdef OC8051_XILINX_ROM
+parameter INT_ROM_WID= 12;
+
+assign ea =| addr[15:INT_ROM_WID];
+
+always @(posedge clk or posedge rst)
+ if (rst)
+   ea_int <= #1 1'b1;
+ else
+	ea_int <= #1 !ea;
+	
+oc8051_altera_rom oc8051_altera_rom1
+(
+.address(addr[11:0]),
+.clock(clk),
+.q(data_o)
+);
+
+`elsif OC8051_XILINX_ROM
 
 parameter INT_ROM_WID= 12;
 
@@ -2712,3 +2734,4 @@ endmodule
 
 
 `endif
+

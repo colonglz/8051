@@ -123,6 +123,23 @@ input   scanb_en;
 
 `else
 
+  `ifdef OC8051_Altera_RAM
+  
+	oc8051_altera_ram OC8051_Altera_Ram_u(
+		.rdclock(clk),
+		.rd_aclr(rst),
+		.rdaddress(rd_addr),
+		.rden(rd_en),
+		.q(rd_data),
+		
+		.wrclock(clk),
+		.wraddress(wr_addr),
+		.wren(wr),
+		.data(wr_data)
+	);
+	
+  `else
+  
   `ifdef OC8051_RAM_VIRTUALSILICON
 
   `else
@@ -173,6 +190,7 @@ input   scanb_en;
           rd_data <= #1 buff[rd_addr];
       end
     `endif  //OC8051_RAM_GENERIC
+	 `endif
   `endif    //OC8051_RAM_VIRTUALSILICON  
 `endif      //OC8051_RAM_XILINX
 
