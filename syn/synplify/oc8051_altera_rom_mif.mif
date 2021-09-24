@@ -14,13 +14,16 @@
 
 -- Quartus II generated Memory Initialization File (.mif)
 
-WIDTH=32;
+WIDTH=8;
 DEPTH=4096;
 
 ADDRESS_RADIX=UNS;
 DATA_RADIX=HEX;
 
 CONTENT BEGIN
-	0     :   00559075;
-	[1..4095]  :   0;
+	0     :   00;
+	1     :   75;
+	2     :   80;
+	3     :   55;
+	[4..4095]  :   00;
 END;

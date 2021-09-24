@@ -37,31 +37,29 @@
 `timescale 1 ps / 1 ps
 // synopsys translate_on
 module oc8051_altera_ram (
+	aclr,
+	clock,
 	data,
-	rd_aclr,
 	rdaddress,
-	rdclock,
 	rden,
 	wraddress,
-	wrclock,
 	wren,
 	q);
 
+	input	  aclr;
+	input	  clock;
 	input	[7:0]  data;
-	input	  rd_aclr;
 	input	[7:0]  rdaddress;
-	input	  rdclock;
 	input	  rden;
 	input	[7:0]  wraddress;
-	input	  wrclock;
 	input	  wren;
 	output	[7:0]  q;
 `ifndef ALTERA_RESERVED_QIS
 // synopsys translate_off
 `endif
-	tri0	  rd_aclr;
+	tri0	  aclr;
+	tri1	  clock;
 	tri1	  rden;
-	tri1	  wrclock;
 	tri0	  wren;
 `ifndef ALTERA_RESERVED_QIS
 // synopsys translate_on
@@ -71,20 +69,20 @@ module oc8051_altera_ram (
 	wire [7:0] q = sub_wire0[7:0];
 
 	altsyncram	altsyncram_component (
-				.clock0 (wrclock),
-				.wren_a (wren),
-				.aclr1 (rd_aclr),
-				.address_b (rdaddress),
-				.clock1 (rdclock),
+				.aclr0 (aclr),
 				.address_a (wraddress),
+				.clock0 (clock),
 				.data_a (data),
 				.rden_b (rden),
+				.wren_a (wren),
+				.address_b (rdaddress),
 				.q_b (sub_wire0),
-				.aclr0 (1'b0),
+				.aclr1 (1'b0),
 				.addressstall_a (1'b0),
 				.addressstall_b (1'b0),
 				.byteena_a (1'b1),
 				.byteena_b (1'b1),
+				.clock1 (1'b1),
 				.clocken0 (1'b1),
 				.clocken1 (1'b1),
 				.clocken2 (1'b1),
@@ -95,8 +93,8 @@ module oc8051_altera_ram (
 				.rden_a (1'b1),
 				.wren_b (1'b0));
 	defparam
-		altsyncram_component.address_aclr_b = "CLEAR1",
-		altsyncram_component.address_reg_b = "CLOCK1",
+		altsyncram_component.address_aclr_b = "NONE",
+		altsyncram_component.address_reg_b = "CLOCK0",
 		altsyncram_component.clock_enable_input_a = "BYPASS",
 		altsyncram_component.clock_enable_input_b = "BYPASS",
 		altsyncram_component.clock_enable_output_b = "BYPASS",
@@ -105,10 +103,11 @@ module oc8051_altera_ram (
 		altsyncram_component.numwords_a = 256,
 		altsyncram_component.numwords_b = 256,
 		altsyncram_component.operation_mode = "DUAL_PORT",
-		altsyncram_component.outdata_aclr_b = "CLEAR1",
-		altsyncram_component.outdata_reg_b = "CLOCK1",
+		altsyncram_component.outdata_aclr_b = "CLEAR0",
+		altsyncram_component.outdata_reg_b = "CLOCK0",
 		altsyncram_component.power_up_uninitialized = "FALSE",
-		altsyncram_component.rdcontrol_reg_b = "CLOCK1",
+		altsyncram_component.rdcontrol_reg_b = "CLOCK0",
+		altsyncram_component.read_during_write_mode_mixed_ports = "OLD_DATA",
 		altsyncram_component.widthad_a = 8,
 		altsyncram_component.widthad_b = 8,
 		altsyncram_component.width_a = 8,
@@ -135,11 +134,11 @@ endmodule
 // Retrieval info: PRIVATE: CLOCK_ENABLE_OUTPUT_B NUMERIC "0"
 // Retrieval info: PRIVATE: CLRdata NUMERIC "0"
 // Retrieval info: PRIVATE: CLRq NUMERIC "1"
-// Retrieval info: PRIVATE: CLRrdaddress NUMERIC "1"
+// Retrieval info: PRIVATE: CLRrdaddress NUMERIC "0"
 // Retrieval info: PRIVATE: CLRrren NUMERIC "0"
 // Retrieval info: PRIVATE: CLRwraddress NUMERIC "0"
 // Retrieval info: PRIVATE: CLRwren NUMERIC "0"
-// Retrieval info: PRIVATE: Clock NUMERIC "1"
+// Retrieval info: PRIVATE: Clock NUMERIC "0"
 // Retrieval info: PRIVATE: Clock_A NUMERIC "0"
 // Retrieval info: PRIVATE: Clock_B NUMERIC "0"
 // Retrieval info: PRIVATE: IMPLEMENT_IN_LES NUMERIC "0"
@@ -158,7 +157,7 @@ endmodule
 // Retrieval info: PRIVATE: OUTDATA_ACLR_B NUMERIC "1"
 // Retrieval info: PRIVATE: OUTDATA_REG_B NUMERIC "1"
 // Retrieval info: PRIVATE: RAM_BLOCK_TYPE NUMERIC "0"
-// Retrieval info: PRIVATE: READ_DURING_WRITE_MODE_MIXED_PORTS NUMERIC "2"
+// Retrieval info: PRIVATE: READ_DURING_WRITE_MODE_MIXED_PORTS NUMERIC "1"
 // Retrieval info: PRIVATE: READ_DURING_WRITE_MODE_PORT_A NUMERIC "3"
 // Retrieval info: PRIVATE: READ_DURING_WRITE_MODE_PORT_B NUMERIC "3"
 // Retrieval info: PRIVATE: REGdata NUMERIC "1"
@@ -181,8 +180,8 @@ endmodule
 // Retrieval info: PRIVATE: enable NUMERIC "0"
 // Retrieval info: PRIVATE: rden NUMERIC "1"
 // Retrieval info: LIBRARY: altera_mf altera_mf.altera_mf_components.all
-// Retrieval info: CONSTANT: ADDRESS_ACLR_B STRING "CLEAR1"
-// Retrieval info: CONSTANT: ADDRESS_REG_B STRING "CLOCK1"
+// Retrieval info: CONSTANT: ADDRESS_ACLR_B STRING "NONE"
+// Retrieval info: CONSTANT: ADDRESS_REG_B STRING "CLOCK0"
 // Retrieval info: CONSTANT: CLOCK_ENABLE_INPUT_A STRING "BYPASS"
 // Retrieval info: CONSTANT: CLOCK_ENABLE_INPUT_B STRING "BYPASS"
 // Retrieval info: CONSTANT: CLOCK_ENABLE_OUTPUT_B STRING "BYPASS"
@@ -191,29 +190,28 @@ endmodule
 // Retrieval info: CONSTANT: NUMWORDS_A NUMERIC "256"
 // Retrieval info: CONSTANT: NUMWORDS_B NUMERIC "256"
 // Retrieval info: CONSTANT: OPERATION_MODE STRING "DUAL_PORT"
-// Retrieval info: CONSTANT: OUTDATA_ACLR_B STRING "CLEAR1"
-// Retrieval info: CONSTANT: OUTDATA_REG_B STRING "CLOCK1"
+// Retrieval info: CONSTANT: OUTDATA_ACLR_B STRING "CLEAR0"
+// Retrieval info: CONSTANT: OUTDATA_REG_B STRING "CLOCK0"
 // Retrieval info: CONSTANT: POWER_UP_UNINITIALIZED STRING "FALSE"
-// Retrieval info: CONSTANT: RDCONTROL_REG_B STRING "CLOCK1"
+// Retrieval info: CONSTANT: RDCONTROL_REG_B STRING "CLOCK0"
+// Retrieval info: CONSTANT: READ_DURING_WRITE_MODE_MIXED_PORTS STRING "OLD_DATA"
 // Retrieval info: CONSTANT: WIDTHAD_A NUMERIC "8"
 // Retrieval info: CONSTANT: WIDTHAD_B NUMERIC "8"
 // Retrieval info: CONSTANT: WIDTH_A NUMERIC "8"
 // Retrieval info: CONSTANT: WIDTH_B NUMERIC "8"
 // Retrieval info: CONSTANT: WIDTH_BYTEENA_A NUMERIC "1"
+// Retrieval info: USED_PORT: aclr 0 0 0 0 INPUT GND "aclr"
+// Retrieval info: USED_PORT: clock 0 0 0 0 INPUT VCC "clock"
 // Retrieval info: USED_PORT: data 0 0 8 0 INPUT NODEFVAL "data[7..0]"
 // Retrieval info: USED_PORT: q 0 0 8 0 OUTPUT NODEFVAL "q[7..0]"
-// Retrieval info: USED_PORT: rd_aclr 0 0 0 0 INPUT GND "rd_aclr"
 // Retrieval info: USED_PORT: rdaddress 0 0 8 0 INPUT NODEFVAL "rdaddress[7..0]"
-// Retrieval info: USED_PORT: rdclock 0 0 0 0 INPUT NODEFVAL "rdclock"
 // Retrieval info: USED_PORT: rden 0 0 0 0 INPUT VCC "rden"
 // Retrieval info: USED_PORT: wraddress 0 0 8 0 INPUT NODEFVAL "wraddress[7..0]"
-// Retrieval info: USED_PORT: wrclock 0 0 0 0 INPUT VCC "wrclock"
 // Retrieval info: USED_PORT: wren 0 0 0 0 INPUT GND "wren"
-// Retrieval info: CONNECT: @aclr1 0 0 0 0 rd_aclr 0 0 0 0
+// Retrieval info: CONNECT: @aclr0 0 0 0 0 aclr 0 0 0 0
 // Retrieval info: CONNECT: @address_a 0 0 8 0 wraddress 0 0 8 0
 // Retrieval info: CONNECT: @address_b 0 0 8 0 rdaddress 0 0 8 0
-// Retrieval info: CONNECT: @clock0 0 0 0 0 wrclock 0 0 0 0
-// Retrieval info: CONNECT: @clock1 0 0 0 0 rdclock 0 0 0 0
+// Retrieval info: CONNECT: @clock0 0 0 0 0 clock 0 0 0 0
 // Retrieval info: CONNECT: @data_a 0 0 8 0 data 0 0 8 0
 // Retrieval info: CONNECT: @rden_b 0 0 0 0 rden 0 0 0 0
 // Retrieval info: CONNECT: @wren_a 0 0 0 0 wren 0 0 0 0

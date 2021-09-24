@@ -132,7 +132,7 @@ reg [7:0] rd_addr_m, wr_addr_m;
 
 
 wire       rd_en;
-reg        bit_addr_r,
+reg        bit_addr_r /* synthesis preserve */,
            rd_en_r;
 reg  [7:0] wr_data_r;
 wire [7:0] rd_data_m;

@@ -77,7 +77,7 @@ input  [7:0] wr_addr;	// write address
 output [7:0] ri_out;
 
 //reg [7:0] buff [31:0];
-reg wr_bit_r;
+reg wr_bit_r /* synthesis preserve */;
 
 
 reg [7:0] buff [0:7];

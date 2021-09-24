@@ -195,8 +195,8 @@ output        wr_o,
               wr_bit_o;
 
 //????
-reg           dack_ir;
-reg [7:0]     ddat_ir;
+reg           dack_ir /* synthesis preserve */;
+reg [7:0]     ddat_ir /* synthesis preserve */;
 reg [23:0]    idat_ir;
 
 /////////////////////////////
@@ -248,7 +248,7 @@ reg [7:0]     wr_addr,
 
 reg [4:0]     rn_r;
 reg [7:0]     ri_r,
-              imm_r,
+              imm_r /* synthesis preserve */,
 	      imm2_r,
 	      op1_r;
 wire [7:0]    imm,
@@ -324,7 +324,7 @@ reg           istb_t,
 	      dwe_o;
 
 reg [7:0]     ddat_o;
-reg [15:0]    iadr_t,
+reg [15:0]    iadr_t /* synthesis noprune */,
               dadr_ot;
 reg           dmem_wait;
 wire          pc_wait;
@@ -504,7 +504,7 @@ begin
     dstb_o <= #1 1'b0;
     dmem_wait <= #1 1'b0;
   end else begin
-    case (mem_act) /* synopsys full_case parallel_case */
+    case (mem_act)
       `OC8051_MAS_DPTR_R: begin  // read from external rom: acc=(dptr)
         dwe_o <= #1 1'b0;
         dstb_o <= #1 1'b1;

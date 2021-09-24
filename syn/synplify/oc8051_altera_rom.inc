@@ -20,5 +20,5 @@ FUNCTION oc8051_altera_rom
 )
 
 RETURNS (
-	q[31..0]
+	q[7..0]
 );

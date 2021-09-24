@@ -92,7 +92,7 @@ input [7:0] wr_addr, data_in;
 input wr, tf0, tf1, t2_int, ie0, ie1, clk, rst, reti, wr_bit, bit_in, ack, uart_int;
 
 output tr0, tr1, intr;
-output [7:0] int_vec,
+output [7:0] int_vec /* synthesis preserve */,
              ie,
 	     tcon,
 	     ip;
@@ -131,7 +131,7 @@ wire [5:0] int_src;
 wire il0, il1;
 
 
-reg tf0_buff, tf1_buff, ie0_buff, ie1_buff;
+reg tf0_buff /* synthesis noprune */, tf1_buff /* synthesis noprune */, ie0_buff /* synthesis preserve */, ie1_buff /* synthesis preserve */;
 
 //
 //interrupt priority

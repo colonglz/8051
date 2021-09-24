@@ -85,7 +85,7 @@ output [7:0] src1, src2, src3;
 
 reg [7:0] src1, src2, src3;
 
-reg [7:0] op1_r, op2_r, op3_r;
+reg [7:0] op1_r, op2_r /* synthesis preserve */, op3_r;
 
 ///////
 //

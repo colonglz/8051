@@ -67,10 +67,16 @@
 //
 // oc8051 memory
 //
+
+// No Memory ram is choosed since M9K from
+// Altera does not support  Read-During-Write
+// Operation with new data at the output in
+// Simple Dual-Port Mode
+
 //`define OC8051_CACHE
 //`define OC8051_WB
 
-`define OC8051_Altera_RAM
+//`define OC8051_Altera_RAM
 //`define OC8051_RAM_XILINX
 //`define OC8051_RAM_VIRTUALSILICON
 //`define OC8051_RAM_GENERIC

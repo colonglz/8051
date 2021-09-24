@@ -93,11 +93,32 @@ always @(posedge clk or posedge rst)
  else
 	ea_int <= #1 !ea;
 	
-oc8051_altera_rom oc8051_altera_rom1
+oc8051_altera_rom oc8051_altera_rom0
 (
 .address(addr[11:0]),
 .clock(clk),
-.q(data_o)
+.q(data_o[7:0])
+);
+
+oc8051_altera_rom1 oc8051_altera_rom1
+(
+.address(addr[11:0]+12'h1),
+.clock(clk),
+.q(data_o[15:8])
+);
+
+oc8051_altera_rom2 oc8051_altera_rom3
+(
+.address(addr[11:0]+12'h2),
+.clock(clk),
+.q(data_o[23:16])
+);
+
+oc8051_altera_rom3 oc8051_altera_rom4
+(
+.address(addr[11:0]+12'h3),
+.clock(clk),
+.q(data_o[31:24])
 );
 
 `elsif OC8051_XILINX_ROM
@@ -911,14 +932,159 @@ always @(posedge clk or posedge rst)
 
 `else
 
+reg [31:0] reg_data_o /* synthesis preserve */;
+parameter INT_ROM_WID= 12;
+reg [7:0] buff [ 0:4096 ]; //4kb
 
-reg [7:0] buff [0:65535]; //64kb
+assign ea =| addr[15:INT_ROM_WID];
+assign data_o = reg_data_o;
 
-assign ea = 1'b0;
-
+/*
 initial
 begin
-  $readmemh("../../../bench/in/oc8051_rom.in", buff);
+  //$readmemh("C:/Users/colon/Modular/8051/bench/in/oc8051_rom.in", buff);
+  $readmemh("C:/Users/colon/Modular/Cprj/test0/bin/Debug/test0.in", buff, 0, 141);
+  buff[0] = 8'h75; 
+  buff[1] = 8'h80;
+  buff[2] = 8'h55;
+end
+*/
+integer i;
+initial
+begin
+    for (i=0; i<4096; i=i+1)
+      buff [i] = 8'h00;
+#2
+
+    buff [16'h00_00] = 8'h02;
+    buff [16'h00_01] = 8'h00;
+    buff [16'h00_02] = 8'h06;
+    buff [16'h00_03] = 8'h02;
+    buff [16'h00_04] = 8'h00;
+    buff [16'h00_05] = 8'h62;
+    buff [16'h00_06] = 8'h75;
+    buff [16'h00_07] = 8'h81;
+    buff [16'h00_08] = 8'h07;
+    buff [16'h00_09] = 8'h12;
+    buff [16'h00_0a] = 8'h00;
+    buff [16'h00_0b] = 8'h7D;
+    buff [16'h00_0c] = 8'hE5;
+    buff [16'h00_0d] = 8'h82;
+    buff [16'h00_0e] = 8'h60;
+    buff [16'h00_0f] = 8'h03;
+    buff [16'h00_10] = 8'h02;
+    buff [16'h00_11] = 8'h00;
+    buff [16'h00_12] = 8'h03;
+    buff [16'h00_13] = 8'h79;
+    buff [16'h00_14] = 8'h00;
+    buff [16'h00_15] = 8'hE9;
+    buff [16'h00_16] = 8'h44;
+    buff [16'h00_17] = 8'h00;
+    buff [16'h00_18] = 8'h60;
+    buff [16'h00_19] = 8'h1B;
+    buff [16'h00_1a] = 8'h7A;
+    buff [16'h00_1b] = 8'h00;
+    buff [16'h00_1c] = 8'h90;
+    buff [16'h00_1d] = 8'h00;
+    buff [16'h00_1e] = 8'h81;
+    buff [16'h00_1f] = 8'h78;
+    buff [16'h00_20] = 8'h01;
+    buff [16'h00_21] = 8'h75;
+    buff [16'h00_22] = 8'hA0;
+    buff [16'h00_23] = 8'h00;
+    buff [16'h00_24] = 8'hE4;
+    buff [16'h00_25] = 8'h93;
+    buff [16'h00_26] = 8'hF2;
+    buff [16'h00_27] = 8'hA3;
+    buff [16'h00_28] = 8'h08;
+    buff [16'h00_29] = 8'hB8;
+    buff [16'h00_2a] = 8'h00;
+    buff [16'h00_2b] = 8'h02;
+    buff [16'h00_2c] = 8'h05;
+    buff [16'h00_2d] = 8'hA0;
+    buff [16'h00_2e] = 8'hD9;
+    buff [16'h00_2f] = 8'hF4;
+    buff [16'h00_30] = 8'hDA;
+    buff [16'h00_31] = 8'hF2;
+    buff [16'h00_32] = 8'h75;
+    buff [16'h00_33] = 8'hA0;
+    buff [16'h00_34] = 8'hFF;
+    buff [16'h00_35] = 8'hE4;
+    buff [16'h00_36] = 8'h78;
+    buff [16'h00_37] = 8'hFF;
+    buff [16'h00_38] = 8'hF6;
+    buff [16'h00_39] = 8'hD8;
+    buff [16'h00_3a] = 8'hFD;
+    buff [16'h00_3b] = 8'h78;
+    buff [16'h00_3c] = 8'h00;
+    buff [16'h00_3d] = 8'hE8;
+    buff [16'h00_3e] = 8'h44;
+    buff [16'h00_3f] = 8'h00;
+    buff [16'h00_40] = 8'h60;
+    buff [16'h00_41] = 8'h0A;
+    buff [16'h00_42] = 8'h79;
+    buff [16'h00_43] = 8'h01;
+    buff [16'h00_44] = 8'h75;
+    buff [16'h00_45] = 8'hA0;
+    buff [16'h00_46] = 8'h00;
+    buff [16'h00_47] = 8'hE4;
+    buff [16'h00_48] = 8'hF3;
+    buff [16'h00_49] = 8'h09;
+    buff [16'h00_4a] = 8'hD8;
+    buff [16'h00_4b] = 8'hFC;
+    buff [16'h00_4c] = 8'h78;
+    buff [16'h00_4d] = 8'h00;
+    buff [16'h00_4e] = 8'hE8;
+    buff [16'h00_4f] = 8'h44;
+    buff [16'h00_50] = 8'h00;
+    buff [16'h00_51] = 8'h60;
+    buff [16'h00_52] = 8'h0C;
+    buff [16'h00_53] = 8'h79;
+    buff [16'h00_54] = 8'h00;
+    buff [16'h00_55] = 8'h90;
+    buff [16'h00_56] = 8'h00;
+    buff [16'h00_57] = 8'h01;
+    buff [16'h00_58] = 8'hE4;
+    buff [16'h00_59] = 8'hF0;
+    buff [16'h00_5a] = 8'hA3;
+    buff [16'h00_5b] = 8'hD8;
+    buff [16'h00_5c] = 8'hFC;
+    buff [16'h00_5d] = 8'hD9;
+    buff [16'h00_5e] = 8'hFA;
+    buff [16'h00_5f] = 8'h02;
+    buff [16'h00_60] = 8'h00;
+    buff [16'h00_61] = 8'h03;
+    buff [16'h00_62] = 8'h75;
+    buff [16'h00_63] = 8'hA8;
+    buff [16'h00_64] = 8'h00;
+    buff [16'h00_65] = 8'h75;
+    buff [16'h00_66] = 8'h80;
+    buff [16'h00_67] = 8'h55;
+    buff [16'h00_68] = 8'h7F;
+    buff [16'h00_69] = 8'h00;
+    buff [16'h00_6a] = 8'h7E;
+    buff [16'h00_6b] = 8'h00;
+    buff [16'h00_6c] = 8'h0F;
+    buff [16'h00_6d] = 8'hBF;
+    buff [16'h00_6e] = 8'hFF;
+    buff [16'h00_6f] = 8'hFC;
+    buff [16'h00_70] = 8'h7F;
+    buff [16'h00_71] = 8'h00;
+    buff [16'h00_72] = 8'h0E;
+    buff [16'h00_73] = 8'hBE;
+    buff [16'h00_74] = 8'hFF;
+    buff [16'h00_75] = 8'hF6;
+    buff [16'h00_76] = 8'h7E;
+    buff [16'h00_77] = 8'h00;
+    buff [16'h00_78] = 8'hB2;
+    buff [16'h00_79] = 8'h80;
+    buff [16'h00_7a] = 8'h80;
+    buff [16'h00_7b] = 8'hF0;
+    buff [16'h00_7c] = 8'h22;
+    buff [16'h00_7d] = 8'h75;
+    buff [16'h00_7e] = 8'h82;
+    buff [16'h00_7f] = 8'h00;
+    buff [16'h00_80] = 8'h22;
 end
 
 always @(posedge clk or posedge rst)
@@ -928,7 +1094,8 @@ always @(posedge clk or posedge rst)
 
 always @(posedge clk)
 begin
-  data_o <= #1 {buff[addr+3], buff[addr+2], buff[addr+1], buff[addr]};
+  reg_data_o <= #1 {buff[addr+3], buff[addr+2], buff[addr+1], buff[addr]};
+  //reg_data_o <= #1 {8'h00, 8'h55, 8'h80, 8'h75};
 end
 
 

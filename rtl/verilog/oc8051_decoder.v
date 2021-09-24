@@ -122,15 +122,15 @@ module oc8051_decoder (clk, rst, op_in, op1_c,
 input clk, rst, eq, mem_wait, wait_data;
 input [7:0] op_in;
 
-output wr_o, bit_addr, pc_wr, rmw, istb, src_sel3;
-output [1:0] psw_set, cy_sel, wr_sfr_o, src_sel2, comp_sel;
-output [2:0] mem_act, src_sel1, ram_rd_sel_o, ram_wr_sel_o, pc_sel, op1_c;
-output [3:0] alu_op_o;
+output wr_o, bit_addr, pc_wr, rmw, istb, src_sel3 /* synthesis preserve */;
+output [1:0] psw_set, cy_sel, wr_sfr_o, src_sel2 /* synthesis preserve */, comp_sel;
+output [2:0] mem_act /* synthesis preserve */, src_sel1, ram_rd_sel_o, ram_wr_sel_o, pc_sel, op1_c;
+output [3:0] alu_op_o /* synthesis preserve */;
 output rd;
 
 reg rmw;
 reg src_sel3, wr,  bit_addr, pc_wr;
-reg [3:0] alu_op;
+reg [3:0] alu_op /* synthesis preserve */;
 reg [1:0] src_sel2, comp_sel, psw_set, cy_sel, wr_sfr;
 reg [2:0] mem_act, src_sel1, ram_wr_sel, ram_rd_sel, pc_sel;
 

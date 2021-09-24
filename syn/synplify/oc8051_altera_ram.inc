@@ -15,13 +15,12 @@
 
 FUNCTION oc8051_altera_ram 
 (
+	aclr,
+	clock,
 	data[7..0],
-	rd_aclr,
 	rdaddress[7..0],
-	rdclock,
 	rden,
 	wraddress[7..0],
-	wrclock,
 	wren
 )
 
