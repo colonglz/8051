@@ -94,7 +94,7 @@ reg [7:0] op1_r, op2_r /* synthesis preserve */, op3_r;
 ///////
 always @(sel1 or op1_r or op2_r or op3_r or pc or acc or ram)
 begin
-  case (sel1) /* synopsys full_case parallel_case */
+  case (sel1)
     `OC8051_AS1_RAM: src1 = ram;
     `OC8051_AS1_ACC: src1 = acc;
     `OC8051_AS1_OP1: src1 = op1_r;

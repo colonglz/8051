@@ -30,8 +30,19 @@ module oc8051_fpga_top (clk, rst,
 //
 //   t0, t1
 	o_clk_8MHz,
-	o_int_rst
+	o_int_rst,
+	
+// ADC adc128s022
+	o_adc_sclk,
+	o_adc_cs,
+	i_adc_din,
+	o_adc_dout
 	);
+	
+input i_adc_din;
+output o_adc_sclk, o_adc_cs, o_adc_dout;
+wire adc_ready;
+wire [11:0] adc_DB;
 
 input clk, rst/*, int1, int2, ea, iack_i, ack_i, rxd, t0, t1*/;
 //input [7:0] dat_i;
@@ -50,11 +61,11 @@ output o_int_rst;
 wire int_rst; // internal reset
 wire rst_out;
 
-wire clk_8Mhz;
+wire clk_10Mhz;
 
 wire nrst;
 
-oc8051_top oc8051_top_1(.wb_rst_i(int_rst), .wb_clk_i(clk_8Mhz),
+oc8051_top oc8051_top_1(.wb_rst_i(int_rst), .wb_clk_i(clk_10Mhz),
 //
 // interrupt interface
 //
@@ -67,11 +78,11 @@ oc8051_top oc8051_top_1(.wb_rst_i(int_rst), .wb_clk_i(clk_8Mhz),
 //
 //interface to instruction rom
 //		wbi_adr_o, 
-		.wbi_dat_i(32'h00000000), 
+		//.wbi_dat_i(32'h00000000), 
 //		wbi_stb_o, 
-		.wbi_ack_i(1'b0), 
+		//.wbi_ack_i(1'b0), 
 //		wbi_cyc_o, 
-		.wbi_err_i(1'b0),
+		//.wbi_err_i(1'b0),
 
 // external ram interface
 //
@@ -79,17 +90,17 @@ oc8051_top oc8051_top_1(.wb_rst_i(int_rst), .wb_clk_i(clk_8Mhz),
 //    .cyc_o(cyc_o),
 //
 // //interface to data ram
-		.wbd_dat_i(8'h00), 
+		//.wbd_dat_i(8'h00), 
 //		wbd_dat_o,
 //		wbd_adr_o, 
 //		wbd_we_o, 
-		.wbd_ack_i(1'b0),
+		//.wbd_ack_i(1'b0),
 //		wbd_stb_o, 
 //		wbd_cyc_o, 
-		.wbd_err_i(1'b0),
+		//.wbd_err_i(1'b0),
 //  ports interface
 //
-     .p0_i(8'hb00), .p1_i(8'hb00), .p2_i(8'hb00), .p3_i(8'hb00),
+     .p0_i(8'h00), .p1_i({7'b0000000,adc_ready}), .p2_i(adc_DB[11:4]), .p3_i(8'h00),
      .p0_o(p0_out), .p1_o(p1_out), .p2_o(p2_out), .p3_o(p3_out)//,
 //
 // serial interface
@@ -104,20 +115,37 @@ oc8051_top oc8051_top_1(.wb_rst_i(int_rst), .wb_clk_i(clk_8Mhz),
 
 clk_div clk_div1 ( 
 	.clk_in( clk ),
-	.clk_out( clk_8Mhz )
+	.clk_out( clk_10Mhz )
  );
 
 
 
  
- initial_rst initial_rst1 (
-	.clk( clk_8Mhz ),
+initial_rst initial_rst1 (
+	.clk( clk_10Mhz ),
 	.rst_out( rst_out )
  );
 
+oc8051_adc oc8051_adc_u (
+	.rst( int_rst ),
+	.clk( clk ),
+	
+	.pin_sclk( o_adc_sclk ),
+	.pin_cs( o_adc_cs ),
+	.pin_din( i_adc_din ),
+	.pin_dout( o_adc_dout ),
+	
+	//i_mode, // single or continue
+	//i_num_samples, // Number of samples to take
+	.i_start( p1_out[3] ),
+	.o_ready( adc_ready ),
+	
+	.i_ADD( p1_out[2:0] ),
+	.o_DB( adc_DB )
+);
  assign int_rst = !rst_out || nrst; 
  
- assign o_clk_8MHz = clk_8Mhz;
+ assign o_clk_8MHz = clk_10Mhz;
  assign o_int_rst = int_rst;
  
  assign nrst = ~rst;

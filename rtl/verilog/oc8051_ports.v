@@ -171,7 +171,7 @@ begin
 `endif
   end else if (wr) begin
     if (!wr_bit) begin
-      case (wr_addr) /* synopsys full_case parallel_case */
+      case (wr_addr)
 //
 // bytaddresable
 `ifdef OC8051_PORT0
@@ -191,7 +191,7 @@ begin
 `endif
       endcase
     end else begin
-      case (wr_addr[7:3]) /* synopsys full_case parallel_case */
+      case (wr_addr[7:3])
 
 //
 // bit addressable

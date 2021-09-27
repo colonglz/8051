@@ -46,7 +46,6 @@ set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
 set_global_assignment -name MIN_CORE_JUNCTION_TEMP 0
 set_global_assignment -name MAX_CORE_JUNCTION_TEMP 85
 set_global_assignment -name ERROR_CHECK_FREQUENCY_DIVISOR 1
-set_global_assignment -name NOMINAL_CORE_SUPPLY_VOLTAGE 1.2V
 set_global_assignment -name EDA_SIMULATION_TOOL "ModelSim-Altera (Verilog)"
 set_global_assignment -name EDA_OUTPUT_DATA_FORMAT "VERILOG HDL" -section_id eda_simulation
 set_global_assignment -name EDA_TIME_SCALE "1 ps" -section_id eda_simulation
@@ -96,9 +95,6 @@ set_global_assignment -name VERILOG_FILE oc8051_tb.v
 set_global_assignment -name HEX_FILE oc8051_altera_rom_mif.hex
 set_global_assignment -name VERILOG_FILE clk_div.v
 set_global_assignment -name VERILOG_FILE oc8051_fpga_top.v
-set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
-set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
-set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
 set_global_assignment -name STRATIX_DEVICE_IO_STANDARD "2.5 V"
 set_location_assignment PIN_E1 -to rst
 set_location_assignment PIN_L3 -to p0_out[7]
@@ -120,12 +116,10 @@ set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to p0_out[0]
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to rst
 set_location_assignment PIN_R8 -to clk
 set_global_assignment -name VERILOG_FILE oc8051_fpga_top_tb.v
-set_global_assignment -name EDA_TEST_BENCH_FILE oc8051_tb.v -section_id oc8051_tb
 set_global_assignment -name EDA_TEST_BENCH_NAME oc8051_fpga_top_tb -section_id eda_simulation
 set_global_assignment -name EDA_DESIGN_INSTANCE_NAME NA -section_id oc8051_fpga_top_tb
 set_global_assignment -name EDA_TEST_BENCH_RUN_SIM_FOR "10 ms" -section_id oc8051_fpga_top_tb
 set_global_assignment -name EDA_TEST_BENCH_MODULE_NAME oc8051_fpga_top_tb -section_id oc8051_fpga_top_tb
-set_global_assignment -name EDA_TEST_BENCH_FILE oc8051_fpga_top_tb.v -section_id oc8051_fpga_top_tb
 set_global_assignment -name VERILOG_FILE initial_rst.v
 set_global_assignment -name SDC_FILE output_files/oc8051_fpga_top.sdc
 set_global_assignment -name SYNTH_TIMING_DRIVEN_SYNTHESIS ON
@@ -299,5 +293,33 @@ set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_BITS=1" -
 set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_NODE_CRC_LOWORD=33082" -section_id auto_signaltap_0
 set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_NODE_CRC_HIWORD=973" -section_id auto_signaltap_0
 set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_ADVANCED_TRIGGER_ENTITY=sld_reserved_oc8051_auto_signaltap_0_1_e807," -section_id auto_signaltap_0
+set_global_assignment -name USE_CONFIGURATION_DEVICE OFF
+set_global_assignment -name CYCLONEIII_CONFIGURATION_DEVICE EPCS4
+set_global_assignment -name CRC_ERROR_OPEN_DRAIN OFF
+set_global_assignment -name OUTPUT_IO_TIMING_NEAR_END_VMEAS "HALF VCCIO" -rise
+set_global_assignment -name OUTPUT_IO_TIMING_NEAR_END_VMEAS "HALF VCCIO" -fall
+set_global_assignment -name OUTPUT_IO_TIMING_FAR_END_VMEAS "HALF SIGNAL SWING" -rise
+set_global_assignment -name OUTPUT_IO_TIMING_FAR_END_VMEAS "HALF SIGNAL SWING" -fall
+set_global_assignment -name VERILOG_FILE adc128s022_spi.v
+set_global_assignment -name VERILOG_FILE adc128s022_spi_tb.v
+set_global_assignment -name EDA_TEST_BENCH_NAME adc128s022_spi_tb -section_id eda_simulation
+set_global_assignment -name EDA_DESIGN_INSTANCE_NAME NA -section_id adc128s022_spi_tb
+set_global_assignment -name EDA_TEST_BENCH_RUN_SIM_FOR "100 us" -section_id adc128s022_spi_tb
+set_global_assignment -name EDA_TEST_BENCH_MODULE_NAME adc128s022_spi_tb -section_id adc128s022_spi_tb
+set_global_assignment -name VERILOG_FILE oc8051_adc.v
+set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
+set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
+set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
+set_global_assignment -name EDA_TEST_BENCH_FILE oc8051_tb.v -section_id oc8051_tb
+set_global_assignment -name EDA_TEST_BENCH_FILE oc8051_fpga_top_tb.v -section_id oc8051_fpga_top_tb
+set_global_assignment -name EDA_TEST_BENCH_FILE adc128s022_spi_tb.v -section_id adc128s022_spi_tb
+set_location_assignment PIN_A9 -to i_adc_din
+set_location_assignment PIN_A10 -to o_adc_cs
+set_location_assignment PIN_B10 -to o_adc_dout
+set_location_assignment PIN_B14 -to o_adc_sclk
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to i_adc_din
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to o_adc_cs
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to o_adc_dout
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to o_adc_sclk
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
 set_global_assignment -name SLD_FILE "C:/Users/colon/Modular/8051/syn/synplify/output_files/SignalTap_Analyzer_auto_stripped.stp"
