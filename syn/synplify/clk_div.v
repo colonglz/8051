@@ -20,7 +20,7 @@ reg reg_clk_out = 1'b0;
 
 always @(posedge clk_in) begin
 	cntr <= cntr+'h1;
-	if(cntr == DIVIDER) begin
+	if(cntr == (DIVIDER - 1) ) begin
 		reg_clk_out <= ~reg_clk_out;
 		cntr <= 'h0;
 	end

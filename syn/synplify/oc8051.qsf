@@ -50,13 +50,89 @@ set_global_assignment -name EDA_SIMULATION_TOOL "ModelSim-Altera (Verilog)"
 set_global_assignment -name EDA_OUTPUT_DATA_FORMAT "VERILOG HDL" -section_id eda_simulation
 set_global_assignment -name EDA_TIME_SCALE "1 ps" -section_id eda_simulation
 set_global_assignment -name EDA_TEST_BENCH_ENABLE_STATUS TEST_BENCH_MODE -section_id eda_simulation
-set_global_assignment -name EDA_NATIVELINK_SIMULATION_TEST_BENCH oc8051_fpga_top_tb -section_id eda_simulation
+set_global_assignment -name EDA_NATIVELINK_SIMULATION_TEST_BENCH oc8051_dac_tb -section_id eda_simulation
 set_global_assignment -name EDA_TEST_BENCH_NAME oc8051_tb -section_id eda_simulation
 set_global_assignment -name EDA_DESIGN_INSTANCE_NAME NA -section_id oc8051_tb
 set_global_assignment -name EDA_TEST_BENCH_RUN_SIM_FOR "1 ms" -section_id oc8051_tb
 set_global_assignment -name EDA_TEST_BENCH_MODULE_NAME oc8051_tb -section_id oc8051_tb
 set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 200 LFPM AIRFLOW"
 set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
+set_global_assignment -name STRATIX_DEVICE_IO_STANDARD "2.5 V"
+set_location_assignment PIN_E1 -to rst
+set_location_assignment PIN_L3 -to p0_out[7]
+set_location_assignment PIN_B1 -to p0_out[6]
+set_location_assignment PIN_F3 -to p0_out[5]
+set_location_assignment PIN_D1 -to p0_out[4]
+set_location_assignment PIN_A11 -to p0_out[3]
+set_location_assignment PIN_B13 -to p0_out[2]
+set_location_assignment PIN_A13 -to p0_out[1]
+set_location_assignment PIN_A15 -to p0_out[0]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to p0_out[7]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to p0_out[6]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to p0_out[4]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to p0_out[5]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to p0_out[3]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to p0_out[2]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to p0_out[1]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to p0_out[0]
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to rst
+set_location_assignment PIN_R8 -to clk
+set_global_assignment -name EDA_TEST_BENCH_NAME oc8051_fpga_top_tb -section_id eda_simulation
+set_global_assignment -name EDA_DESIGN_INSTANCE_NAME NA -section_id oc8051_fpga_top_tb
+set_global_assignment -name EDA_TEST_BENCH_RUN_SIM_FOR "10 ms" -section_id oc8051_fpga_top_tb
+set_global_assignment -name EDA_TEST_BENCH_MODULE_NAME oc8051_fpga_top_tb -section_id oc8051_fpga_top_tb
+set_global_assignment -name SYNTH_TIMING_DRIVEN_SYNTHESIS ON
+set_global_assignment -name MUX_RESTRUCTURE OFF
+set_global_assignment -name REMOVE_DUPLICATE_REGISTERS OFF
+set_global_assignment -name SYNTH_PROTECT_SDC_CONSTRAINT ON
+set_global_assignment -name SHIFT_REGISTER_RECOGNITION_ACLR_SIGNAL OFF
+set_global_assignment -name DISABLE_REGISTER_MERGING_ACROSS_HIERARCHIES ON
+set_global_assignment -name ENABLE_SIGNALTAP ON
+set_global_assignment -name USE_SIGNALTAP_FILE output_files/SignalTap_Analyzer.stp
+set_global_assignment -name SLD_NODE_CREATOR_ID 110 -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_ENTITY_NAME sld_signaltap -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_NODE_INFO=805334528" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_POWER_UP_TRIGGER=0" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_STORAGE_QUALIFIER_INVERSION_MASK_LENGTH=0" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_ATTRIBUTE_MEM_MODE=OFF" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_STATE_FLOW_USE_GENERATED=0" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_STATE_BITS=11" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_BUFFER_FULL_STOP=1" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_CURRENT_RESOURCE_WIDTH=1" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_LEVEL=1" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_IN_ENABLED=0" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_LEVEL_PIPELINE=1" -section_id auto_signaltap_0
+set_location_assignment PIN_D3 -to o_clk_8MHz
+set_location_assignment PIN_C3 -to o_int_rst
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_ENABLE_ADVANCED_TRIGGER=1" -section_id auto_signaltap_0
+set_global_assignment -name USE_CONFIGURATION_DEVICE OFF
+set_global_assignment -name CYCLONEIII_CONFIGURATION_DEVICE EPCS4
+set_global_assignment -name CRC_ERROR_OPEN_DRAIN OFF
+set_global_assignment -name OUTPUT_IO_TIMING_NEAR_END_VMEAS "HALF VCCIO" -rise
+set_global_assignment -name OUTPUT_IO_TIMING_NEAR_END_VMEAS "HALF VCCIO" -fall
+set_global_assignment -name OUTPUT_IO_TIMING_FAR_END_VMEAS "HALF SIGNAL SWING" -rise
+set_global_assignment -name OUTPUT_IO_TIMING_FAR_END_VMEAS "HALF SIGNAL SWING" -fall
+set_global_assignment -name EDA_TEST_BENCH_NAME adc128s022_spi_tb -section_id eda_simulation
+set_global_assignment -name EDA_DESIGN_INSTANCE_NAME NA -section_id adc128s022_spi_tb
+set_global_assignment -name EDA_TEST_BENCH_RUN_SIM_FOR "100 us" -section_id adc128s022_spi_tb
+set_global_assignment -name EDA_TEST_BENCH_MODULE_NAME adc128s022_spi_tb -section_id adc128s022_spi_tb
+set_location_assignment PIN_A9 -to i_adc_din
+set_location_assignment PIN_A10 -to o_adc_cs
+set_location_assignment PIN_B10 -to o_adc_dout
+set_location_assignment PIN_B14 -to o_adc_sclk
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to i_adc_din
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to o_adc_cs
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to o_adc_dout
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to o_adc_sclk
+set_global_assignment -name EDA_TEST_BENCH_NAME fft_tb -section_id eda_simulation
+set_global_assignment -name EDA_DESIGN_INSTANCE_NAME NA -section_id fft_tb
+set_global_assignment -name EDA_TEST_BENCH_RUN_SIM_FOR "33 us" -section_id fft_tb
+set_global_assignment -name EDA_TEST_BENCH_MODULE_NAME fft_tb -section_id fft_tb
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_INVERSION_MASK=0000000000000000000000000" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_INVERSION_MASK_LENGTH=25" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_SEGMENT_SIZE=2048" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_SAMPLE_DEPTH=2048" -section_id auto_signaltap_0
+set_global_assignment -name VERILOG_FILE fft_tb.v
 set_global_assignment -name HEX_FILE ../../../Cprj/test0/bin/Debug/test0.hex
 set_global_assignment -name VERILOG_FILE ../../rtl/verilog/oc8051_wb_iinterface.v
 set_global_assignment -name VERILOG_FILE ../../rtl/verilog/oc8051_uart.v
@@ -95,231 +171,163 @@ set_global_assignment -name VERILOG_FILE oc8051_tb.v
 set_global_assignment -name HEX_FILE oc8051_altera_rom_mif.hex
 set_global_assignment -name VERILOG_FILE clk_div.v
 set_global_assignment -name VERILOG_FILE oc8051_fpga_top.v
-set_global_assignment -name STRATIX_DEVICE_IO_STANDARD "2.5 V"
-set_location_assignment PIN_E1 -to rst
-set_location_assignment PIN_L3 -to p0_out[7]
-set_location_assignment PIN_B1 -to p0_out[6]
-set_location_assignment PIN_F3 -to p0_out[5]
-set_location_assignment PIN_D1 -to p0_out[4]
-set_location_assignment PIN_A11 -to p0_out[3]
-set_location_assignment PIN_B13 -to p0_out[2]
-set_location_assignment PIN_A13 -to p0_out[1]
-set_location_assignment PIN_A15 -to p0_out[0]
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to p0_out[7]
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to p0_out[6]
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to p0_out[4]
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to p0_out[5]
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to p0_out[3]
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to p0_out[2]
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to p0_out[1]
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to p0_out[0]
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to rst
-set_location_assignment PIN_R8 -to clk
 set_global_assignment -name VERILOG_FILE oc8051_fpga_top_tb.v
-set_global_assignment -name EDA_TEST_BENCH_NAME oc8051_fpga_top_tb -section_id eda_simulation
-set_global_assignment -name EDA_DESIGN_INSTANCE_NAME NA -section_id oc8051_fpga_top_tb
-set_global_assignment -name EDA_TEST_BENCH_RUN_SIM_FOR "10 ms" -section_id oc8051_fpga_top_tb
-set_global_assignment -name EDA_TEST_BENCH_MODULE_NAME oc8051_fpga_top_tb -section_id oc8051_fpga_top_tb
 set_global_assignment -name VERILOG_FILE initial_rst.v
 set_global_assignment -name SDC_FILE output_files/oc8051_fpga_top.sdc
-set_global_assignment -name SYNTH_TIMING_DRIVEN_SYNTHESIS ON
-set_global_assignment -name MUX_RESTRUCTURE OFF
-set_global_assignment -name REMOVE_DUPLICATE_REGISTERS OFF
-set_global_assignment -name SYNTH_PROTECT_SDC_CONSTRAINT ON
-set_global_assignment -name SHIFT_REGISTER_RECOGNITION_ACLR_SIGNAL OFF
-set_global_assignment -name DISABLE_REGISTER_MERGING_ACROSS_HIERARCHIES ON
 set_global_assignment -name QIP_FILE oc8051_altera_rom1.qip
 set_global_assignment -name QIP_FILE oc8051_altera_rom2.qip
 set_global_assignment -name QIP_FILE oc8051_altera_rom3.qip
-set_global_assignment -name ENABLE_SIGNALTAP ON
-set_global_assignment -name USE_SIGNALTAP_FILE output_files/SignalTap_Analyzer.stp
 set_global_assignment -name SIGNALTAP_FILE output_files/SignalTap_Analyzer.stp
-set_global_assignment -name SLD_NODE_CREATOR_ID 110 -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_ENTITY_NAME sld_signaltap -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_NODE_INFO=805334528" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_POWER_UP_TRIGGER=0" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_STORAGE_QUALIFIER_INVERSION_MASK_LENGTH=0" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_ATTRIBUTE_MEM_MODE=OFF" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_STATE_FLOW_USE_GENERATED=0" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_STATE_BITS=11" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_BUFFER_FULL_STOP=1" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_CURRENT_RESOURCE_WIDTH=1" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_LEVEL=1" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_IN_ENABLED=0" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_LEVEL_PIPELINE=1" -section_id auto_signaltap_0
-set_location_assignment PIN_D3 -to o_clk_8MHz
-set_location_assignment PIN_C3 -to o_int_rst
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_ENABLE_ADVANCED_TRIGGER=1" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[0] -to "clk_div:clk_div1|clk_out" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_INVERSION_MASK=000000000000000000000000" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_INVERSION_MASK_LENGTH=24" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_SEGMENT_SIZE=1024" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_SAMPLE_DEPTH=1024" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_clk -to clk -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[0] -to int_rst -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1] -to int_rst -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[2] -to "oc8051_top:oc8051_top_1|oc8051_decoder:oc8051_decoder1|mem_act[0]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[3] -to "oc8051_top:oc8051_top_1|oc8051_decoder:oc8051_decoder1|mem_act[1]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[4] -to "oc8051_top:oc8051_top_1|oc8051_decoder:oc8051_decoder1|mem_act[2]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[5] -to "oc8051_top:oc8051_top_1|oc8051_decoder:oc8051_decoder1|mem_wait" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[6] -to "oc8051_top:oc8051_top_1|oc8051_decoder:oc8051_decoder1|op_cur[0]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[7] -to "oc8051_top:oc8051_top_1|oc8051_decoder:oc8051_decoder1|op_cur[1]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[8] -to "oc8051_top:oc8051_top_1|oc8051_decoder:oc8051_decoder1|op_cur[2]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[9] -to "oc8051_top:oc8051_top_1|oc8051_decoder:oc8051_decoder1|op_cur[3]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[10] -to "oc8051_top:oc8051_top_1|oc8051_decoder:oc8051_decoder1|op_cur[4]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[11] -to "oc8051_top:oc8051_top_1|oc8051_decoder:oc8051_decoder1|op_cur[5]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[12] -to "oc8051_top:oc8051_top_1|oc8051_decoder:oc8051_decoder1|op_cur[6]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[13] -to "oc8051_top:oc8051_top_1|oc8051_decoder:oc8051_decoder1|op_cur[7]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[14] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|cdata[0]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[15] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|cdata[1]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[16] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|cdata[2]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[17] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|cdata[3]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[18] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|cdata[4]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[19] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|cdata[5]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[20] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|cdata[6]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[21] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|cdata[7]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[22] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|cdone" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[23] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|dack_ir" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[24] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|ddat_ir[0]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[25] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|ddat_ir[1]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[26] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|ddat_ir[2]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[27] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|ddat_ir[3]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[28] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|ddat_ir[4]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[29] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|ddat_ir[5]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[30] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|ddat_ir[6]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[31] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|ddat_ir[7]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[32] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|dmem_wait" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[33] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|imem_wait" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[34] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|op1_o[0]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[35] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|op1_o[1]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[36] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|op1_o[2]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[37] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|op1_o[3]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[38] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|op1_o[4]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[39] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|op1_o[5]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[40] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|op1_o[6]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[41] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|op1_o[7]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[42] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|op1_out[0]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[43] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|op1_out[1]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[44] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|op1_out[2]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[45] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|op1_out[3]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[46] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|op1_out[4]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[47] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|op1_out[5]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[48] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|op1_out[6]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[49] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|op1_out[7]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[50] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|op2_out[0]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[51] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|op2_out[1]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[52] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|op2_out[2]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[53] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|op2_out[3]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[54] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|op2_out[4]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[55] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|op2_out[5]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[56] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|op2_out[6]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[57] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|op2_out[7]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[58] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|op3_out[0]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[59] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|op3_out[1]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[60] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|op3_out[2]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[61] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|op3_out[3]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[62] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|op3_out[4]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[63] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|op3_out[5]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[64] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|op3_out[6]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[65] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|op3_out[7]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[66] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|pc[0]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[67] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|pc[10]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[68] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|pc[11]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[69] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|pc[12]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[70] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|pc[13]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[71] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|pc[14]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[72] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|pc[15]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[73] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|pc[1]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[74] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|pc[2]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[75] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|pc[3]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[76] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|pc[4]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[77] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|pc[5]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[78] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|pc[6]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[79] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|pc[7]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[80] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|pc[8]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[81] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|pc[9]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[82] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|pc_wr_r2" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[83] -to "oc8051_top:oc8051_top_1|oc8051_memory_interface:oc8051_memory_interface1|rd" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[84] -to "oc8051_top:oc8051_top_1|oc8051_rom:oc8051_rom1|addr[0]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[85] -to "oc8051_top:oc8051_top_1|oc8051_rom:oc8051_rom1|addr[10]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[86] -to "oc8051_top:oc8051_top_1|oc8051_rom:oc8051_rom1|addr[11]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[87] -to "oc8051_top:oc8051_top_1|oc8051_rom:oc8051_rom1|addr[12]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[88] -to "oc8051_top:oc8051_top_1|oc8051_rom:oc8051_rom1|addr[13]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[89] -to "oc8051_top:oc8051_top_1|oc8051_rom:oc8051_rom1|addr[14]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[90] -to "oc8051_top:oc8051_top_1|oc8051_rom:oc8051_rom1|addr[15]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[91] -to "oc8051_top:oc8051_top_1|oc8051_rom:oc8051_rom1|addr[1]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[92] -to "oc8051_top:oc8051_top_1|oc8051_rom:oc8051_rom1|addr[2]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[93] -to "oc8051_top:oc8051_top_1|oc8051_rom:oc8051_rom1|addr[3]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[94] -to "oc8051_top:oc8051_top_1|oc8051_rom:oc8051_rom1|addr[4]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[95] -to "oc8051_top:oc8051_top_1|oc8051_rom:oc8051_rom1|addr[5]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[96] -to "oc8051_top:oc8051_top_1|oc8051_rom:oc8051_rom1|addr[6]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[97] -to "oc8051_top:oc8051_top_1|oc8051_rom:oc8051_rom1|addr[7]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[98] -to "oc8051_top:oc8051_top_1|oc8051_rom:oc8051_rom1|addr[8]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[99] -to "oc8051_top:oc8051_top_1|oc8051_rom:oc8051_rom1|addr[9]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[100] -to "oc8051_top:oc8051_top_1|oc8051_rom:oc8051_rom1|data_o[0]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[101] -to "oc8051_top:oc8051_top_1|oc8051_rom:oc8051_rom1|data_o[10]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[102] -to "oc8051_top:oc8051_top_1|oc8051_rom:oc8051_rom1|data_o[11]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[103] -to "oc8051_top:oc8051_top_1|oc8051_rom:oc8051_rom1|data_o[12]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[104] -to "oc8051_top:oc8051_top_1|oc8051_rom:oc8051_rom1|data_o[13]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[105] -to "oc8051_top:oc8051_top_1|oc8051_rom:oc8051_rom1|data_o[14]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[106] -to "oc8051_top:oc8051_top_1|oc8051_rom:oc8051_rom1|data_o[15]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[107] -to "oc8051_top:oc8051_top_1|oc8051_rom:oc8051_rom1|data_o[16]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[108] -to "oc8051_top:oc8051_top_1|oc8051_rom:oc8051_rom1|data_o[17]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[109] -to "oc8051_top:oc8051_top_1|oc8051_rom:oc8051_rom1|data_o[18]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[110] -to "oc8051_top:oc8051_top_1|oc8051_rom:oc8051_rom1|data_o[19]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[111] -to "oc8051_top:oc8051_top_1|oc8051_rom:oc8051_rom1|data_o[1]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[112] -to "oc8051_top:oc8051_top_1|oc8051_rom:oc8051_rom1|data_o[20]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[113] -to "oc8051_top:oc8051_top_1|oc8051_rom:oc8051_rom1|data_o[21]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[114] -to "oc8051_top:oc8051_top_1|oc8051_rom:oc8051_rom1|data_o[22]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[115] -to "oc8051_top:oc8051_top_1|oc8051_rom:oc8051_rom1|data_o[23]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[116] -to "oc8051_top:oc8051_top_1|oc8051_rom:oc8051_rom1|data_o[24]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[117] -to "oc8051_top:oc8051_top_1|oc8051_rom:oc8051_rom1|data_o[25]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[118] -to "oc8051_top:oc8051_top_1|oc8051_rom:oc8051_rom1|data_o[26]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[119] -to "oc8051_top:oc8051_top_1|oc8051_rom:oc8051_rom1|data_o[27]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[120] -to "oc8051_top:oc8051_top_1|oc8051_rom:oc8051_rom1|data_o[28]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[121] -to "oc8051_top:oc8051_top_1|oc8051_rom:oc8051_rom1|data_o[29]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[122] -to "oc8051_top:oc8051_top_1|oc8051_rom:oc8051_rom1|data_o[2]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[123] -to "oc8051_top:oc8051_top_1|oc8051_rom:oc8051_rom1|data_o[30]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[124] -to "oc8051_top:oc8051_top_1|oc8051_rom:oc8051_rom1|data_o[31]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[125] -to "oc8051_top:oc8051_top_1|oc8051_rom:oc8051_rom1|data_o[3]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[126] -to "oc8051_top:oc8051_top_1|oc8051_rom:oc8051_rom1|data_o[4]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[127] -to "oc8051_top:oc8051_top_1|oc8051_rom:oc8051_rom1|data_o[5]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[128] -to "oc8051_top:oc8051_top_1|oc8051_rom:oc8051_rom1|data_o[6]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[129] -to "oc8051_top:oc8051_top_1|oc8051_rom:oc8051_rom1|data_o[7]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[130] -to "oc8051_top:oc8051_top_1|oc8051_rom:oc8051_rom1|data_o[8]" -section_id auto_signaltap_0
-set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[131] -to "oc8051_top:oc8051_top_1|oc8051_rom:oc8051_rom1|data_o[9]" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_DATA_BITS=132" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_BITS=1" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_NODE_CRC_LOWORD=33082" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_NODE_CRC_HIWORD=973" -section_id auto_signaltap_0
-set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_ADVANCED_TRIGGER_ENTITY=sld_reserved_oc8051_auto_signaltap_0_1_e807," -section_id auto_signaltap_0
-set_global_assignment -name USE_CONFIGURATION_DEVICE OFF
-set_global_assignment -name CYCLONEIII_CONFIGURATION_DEVICE EPCS4
-set_global_assignment -name CRC_ERROR_OPEN_DRAIN OFF
-set_global_assignment -name OUTPUT_IO_TIMING_NEAR_END_VMEAS "HALF VCCIO" -rise
-set_global_assignment -name OUTPUT_IO_TIMING_NEAR_END_VMEAS "HALF VCCIO" -fall
-set_global_assignment -name OUTPUT_IO_TIMING_FAR_END_VMEAS "HALF SIGNAL SWING" -rise
-set_global_assignment -name OUTPUT_IO_TIMING_FAR_END_VMEAS "HALF SIGNAL SWING" -fall
 set_global_assignment -name VERILOG_FILE adc128s022_spi.v
 set_global_assignment -name VERILOG_FILE adc128s022_spi_tb.v
-set_global_assignment -name EDA_TEST_BENCH_NAME adc128s022_spi_tb -section_id eda_simulation
-set_global_assignment -name EDA_DESIGN_INSTANCE_NAME NA -section_id adc128s022_spi_tb
-set_global_assignment -name EDA_TEST_BENCH_RUN_SIM_FOR "100 us" -section_id adc128s022_spi_tb
-set_global_assignment -name EDA_TEST_BENCH_MODULE_NAME adc128s022_spi_tb -section_id adc128s022_spi_tb
 set_global_assignment -name VERILOG_FILE oc8051_adc.v
-set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
-set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
-set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
+set_global_assignment -name QIP_FILE fft.qip
+set_global_assignment -name VERILOG_FILE oc8051_fft_top.v
+set_global_assignment -name VERILOG_FILE i2c_core.v
+set_global_assignment -name VERILOG_FILE i2c_core_tb.v
+set_global_assignment -name EDA_TEST_BENCH_NAME i2c_core_tb -section_id eda_simulation
+set_global_assignment -name EDA_DESIGN_INSTANCE_NAME NA -section_id i2c_core_tb
+set_global_assignment -name EDA_TEST_BENCH_RUN_SIM_FOR "10 us" -section_id i2c_core_tb
+set_global_assignment -name EDA_TEST_BENCH_MODULE_NAME i2c_core_tb -section_id i2c_core_tb
+set_global_assignment -name VERILOG_FILE oc8051_dac.v
 set_global_assignment -name EDA_TEST_BENCH_FILE oc8051_tb.v -section_id oc8051_tb
 set_global_assignment -name EDA_TEST_BENCH_FILE oc8051_fpga_top_tb.v -section_id oc8051_fpga_top_tb
 set_global_assignment -name EDA_TEST_BENCH_FILE adc128s022_spi_tb.v -section_id adc128s022_spi_tb
-set_location_assignment PIN_A9 -to i_adc_din
-set_location_assignment PIN_A10 -to o_adc_cs
-set_location_assignment PIN_B10 -to o_adc_dout
-set_location_assignment PIN_B14 -to o_adc_sclk
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to i_adc_din
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to o_adc_cs
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to o_adc_dout
-set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to o_adc_sclk
+set_global_assignment -name EDA_TEST_BENCH_FILE fft_tb.v -section_id fft_tb
+set_global_assignment -name EDA_TEST_BENCH_FILE i2c_core_tb.v -section_id i2c_core_tb
+set_global_assignment -name EDA_TEST_BENCH_NAME oc8051_dac_tb -section_id eda_simulation
+set_global_assignment -name EDA_DESIGN_INSTANCE_NAME NA -section_id oc8051_dac_tb
+set_global_assignment -name EDA_TEST_BENCH_RUN_SIM_FOR "10 us" -section_id oc8051_dac_tb
+set_global_assignment -name EDA_TEST_BENCH_MODULE_NAME oc8051_dac_tb -section_id oc8051_dac_tb
+set_global_assignment -name EDA_TEST_BENCH_FILE oc8051_dac_tb.v -section_id oc8051_dac_tb
+set_global_assignment -name VERILOG_TEST_BENCH_FILE oc8051_dac_tb.v
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to io_sda
+set_location_assignment PIN_A3 -to io_sda
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to o_int_rst
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to o_clk_8MHz
+set_global_assignment -name EXTRACT_VERILOG_STATE_MACHINES OFF
+set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
+set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
+set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
+set_location_assignment PIN_A2 -to o_scl
+set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to o_scl
+set_global_assignment -name VERILOG_FILE input_view.v
+set_location_assignment PIN_D12 -to i_view[1]
+set_location_assignment PIN_B12 -to i_view[0]
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_clk -to clk -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[0] -to "oc8051_fft_top:fft_u|fft:dut|sink_eop" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[1] -to "oc8051_fft_top:fft_u|fft:dut|sink_real[0]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[2] -to "oc8051_fft_top:fft_u|fft:dut|sink_real[10]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[3] -to "oc8051_fft_top:fft_u|fft:dut|sink_real[11]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[4] -to "oc8051_fft_top:fft_u|fft:dut|sink_real[1]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[5] -to "oc8051_fft_top:fft_u|fft:dut|sink_real[2]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[6] -to "oc8051_fft_top:fft_u|fft:dut|sink_real[3]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[7] -to "oc8051_fft_top:fft_u|fft:dut|sink_real[4]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[8] -to "oc8051_fft_top:fft_u|fft:dut|sink_real[5]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[9] -to "oc8051_fft_top:fft_u|fft:dut|sink_real[6]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[10] -to "oc8051_fft_top:fft_u|fft:dut|sink_real[7]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[11] -to "oc8051_fft_top:fft_u|fft:dut|sink_real[8]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[12] -to "oc8051_fft_top:fft_u|fft:dut|sink_real[9]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[13] -to "oc8051_fft_top:fft_u|fft:dut|sink_sop" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[14] -to "oc8051_fft_top:fft_u|fft:dut|source_ready" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[15] -to "oc8051_fft_top:fft_u|fft:dut|source_real[0]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[16] -to "oc8051_fft_top:fft_u|fft:dut|source_real[10]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[17] -to "oc8051_fft_top:fft_u|fft:dut|source_real[11]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[18] -to "oc8051_fft_top:fft_u|fft:dut|source_real[12]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[19] -to "oc8051_fft_top:fft_u|fft:dut|source_real[13]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[20] -to "oc8051_fft_top:fft_u|fft:dut|source_real[14]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[21] -to "oc8051_fft_top:fft_u|fft:dut|source_real[15]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[22] -to "oc8051_fft_top:fft_u|fft:dut|source_real[16]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[23] -to "oc8051_fft_top:fft_u|fft:dut|source_real[17]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[24] -to "oc8051_fft_top:fft_u|fft:dut|source_real[18]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[25] -to "oc8051_fft_top:fft_u|fft:dut|source_real[19]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[26] -to "oc8051_fft_top:fft_u|fft:dut|source_real[1]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[27] -to "oc8051_fft_top:fft_u|fft:dut|source_real[20]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[28] -to "oc8051_fft_top:fft_u|fft:dut|source_real[21]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[29] -to "oc8051_fft_top:fft_u|fft:dut|source_real[22]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[30] -to "oc8051_fft_top:fft_u|fft:dut|source_real[2]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[31] -to "oc8051_fft_top:fft_u|fft:dut|source_real[3]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[32] -to "oc8051_fft_top:fft_u|fft:dut|source_real[4]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[33] -to "oc8051_fft_top:fft_u|fft:dut|source_real[5]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[34] -to "oc8051_fft_top:fft_u|fft:dut|source_real[6]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[35] -to "oc8051_fft_top:fft_u|fft:dut|source_real[7]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[36] -to "oc8051_fft_top:fft_u|fft:dut|source_real[8]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[37] -to "oc8051_fft_top:fft_u|fft:dut|source_real[9]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[38] -to "oc8051_fft_top:fft_u|fft:dut|source_sop" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[39] -to "oc8051_fft_top:fft_u|fft:dut|source_valid" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[0] -to int_rst -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[1] -to "oc8051_fft_top:fft_u|fft:dut|sink_eop" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[2] -to "oc8051_fft_top:fft_u|fft:dut|sink_real[0]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[3] -to "oc8051_fft_top:fft_u|fft:dut|sink_real[10]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[4] -to "oc8051_fft_top:fft_u|fft:dut|sink_real[11]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[5] -to "oc8051_fft_top:fft_u|fft:dut|sink_real[1]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[6] -to "oc8051_fft_top:fft_u|fft:dut|sink_real[2]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[7] -to "oc8051_fft_top:fft_u|fft:dut|sink_real[3]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[8] -to "oc8051_fft_top:fft_u|fft:dut|sink_real[4]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[9] -to "oc8051_fft_top:fft_u|fft:dut|sink_real[5]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[10] -to "oc8051_fft_top:fft_u|fft:dut|sink_real[6]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[11] -to "oc8051_fft_top:fft_u|fft:dut|sink_real[7]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[12] -to "oc8051_fft_top:fft_u|fft:dut|sink_real[8]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[13] -to "oc8051_fft_top:fft_u|fft:dut|sink_real[9]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[14] -to "oc8051_fft_top:fft_u|fft:dut|sink_sop" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[15] -to "oc8051_fft_top:fft_u|fft:dut|source_ready" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[16] -to "oc8051_fft_top:fft_u|fft:dut|source_real[0]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[17] -to "oc8051_fft_top:fft_u|fft:dut|source_real[10]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[18] -to "oc8051_fft_top:fft_u|fft:dut|source_real[11]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[19] -to "oc8051_fft_top:fft_u|fft:dut|source_real[12]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[20] -to "oc8051_fft_top:fft_u|fft:dut|source_real[13]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[21] -to "oc8051_fft_top:fft_u|fft:dut|source_real[14]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[22] -to "oc8051_fft_top:fft_u|fft:dut|source_real[15]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[23] -to "oc8051_fft_top:fft_u|fft:dut|source_real[16]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[24] -to "oc8051_fft_top:fft_u|fft:dut|source_real[17]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[25] -to "oc8051_fft_top:fft_u|fft:dut|source_real[18]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[26] -to "oc8051_fft_top:fft_u|fft:dut|source_real[19]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[27] -to "oc8051_fft_top:fft_u|fft:dut|source_real[1]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[28] -to "oc8051_fft_top:fft_u|fft:dut|source_real[20]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[29] -to "oc8051_fft_top:fft_u|fft:dut|source_real[21]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[30] -to "oc8051_fft_top:fft_u|fft:dut|source_real[22]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[31] -to "oc8051_fft_top:fft_u|fft:dut|source_real[2]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[32] -to "oc8051_fft_top:fft_u|fft:dut|source_real[3]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[33] -to "oc8051_fft_top:fft_u|fft:dut|source_real[4]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[34] -to "oc8051_fft_top:fft_u|fft:dut|source_real[5]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[35] -to "oc8051_fft_top:fft_u|fft:dut|source_real[6]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[36] -to "oc8051_fft_top:fft_u|fft:dut|source_real[7]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[37] -to "oc8051_fft_top:fft_u|fft:dut|source_real[8]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[38] -to "oc8051_fft_top:fft_u|fft:dut|source_real[9]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[39] -to "oc8051_fft_top:fft_u|fft:dut|source_sop" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[40] -to "oc8051_fft_top:fft_u|fft:dut|source_valid" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[40] -to "oc8051_fft_top:fft_u|i_adc_input[0]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[41] -to "oc8051_fft_top:fft_u|i_adc_input[10]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[42] -to "oc8051_fft_top:fft_u|i_adc_input[11]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[43] -to "oc8051_fft_top:fft_u|i_adc_input[1]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[44] -to "oc8051_fft_top:fft_u|i_adc_input[2]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[45] -to "oc8051_fft_top:fft_u|i_adc_input[3]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[46] -to "oc8051_fft_top:fft_u|i_adc_input[4]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[47] -to "oc8051_fft_top:fft_u|i_adc_input[5]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[48] -to "oc8051_fft_top:fft_u|i_adc_input[6]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[49] -to "oc8051_fft_top:fft_u|i_adc_input[7]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[50] -to "oc8051_fft_top:fft_u|i_adc_input[8]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[51] -to "oc8051_fft_top:fft_u|i_adc_input[9]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[41] -to "oc8051_fft_top:fft_u|i_adc_input[0]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[42] -to "oc8051_fft_top:fft_u|i_adc_input[10]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[43] -to "oc8051_fft_top:fft_u|i_adc_input[11]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[44] -to "oc8051_fft_top:fft_u|i_adc_input[1]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[45] -to "oc8051_fft_top:fft_u|i_adc_input[2]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[46] -to "oc8051_fft_top:fft_u|i_adc_input[3]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[47] -to "oc8051_fft_top:fft_u|i_adc_input[4]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[48] -to "oc8051_fft_top:fft_u|i_adc_input[5]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[49] -to "oc8051_fft_top:fft_u|i_adc_input[6]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[50] -to "oc8051_fft_top:fft_u|i_adc_input[7]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[51] -to "oc8051_fft_top:fft_u|i_adc_input[8]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[52] -to "oc8051_fft_top:fft_u|i_adc_input[9]" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[52] -to "oc8051_fft_top:fft_u|i_adc_input_ready" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[53] -to "oc8051_fft_top:fft_u|w_rasing_edge_adc_input_ready" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[53] -to "oc8051_fft_top:fft_u|i_adc_input_ready" -section_id auto_signaltap_0
+set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_data_in[54] -to "oc8051_fft_top:fft_u|w_rasing_edge_adc_input_ready" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_DATA_BITS=55" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_BITS=54" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_NODE_CRC_LOWORD=5172" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_NODE_CRC_HIWORD=32252" -section_id auto_signaltap_0
+set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_ADVANCED_TRIGGER_ENTITY=sld_reserved_oc8051_auto_signaltap_0_1_957a," -section_id auto_signaltap_0
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
 set_global_assignment -name SLD_FILE "C:/Users/colon/Modular/8051/syn/synplify/output_files/SignalTap_Analyzer_auto_stripped.stp"
