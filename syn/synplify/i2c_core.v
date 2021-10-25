@@ -12,7 +12,7 @@ module i2c_core (
 
 	i_start,
 	i_data,
-	i_data_elements,
+	i_new_data,
     o_new_data,
     o_busy,
     
@@ -29,7 +29,8 @@ module i2c_core (
     output o_scl; 
     input i_start;
     input [DATAWIDTH -1:0] i_data;
-    input [MAXELEMENTSWIDTH -1:0] i_data_elements;
+    input i_new_data; // Indication that will be another transmission
+                      // on the next cycle.
     output o_new_data;
     output o_busy;
     
@@ -53,7 +54,6 @@ module i2c_core (
     
     reg r_start = 1'b0;
     reg r_ack;
-    reg [MAXELEMENTSWIDTH -1:0] r_data_elements;
     
     reg r_start_send_byte;
     wire w_sda_out;
@@ -84,16 +84,14 @@ module i2c_core (
     // Conditions that casues state change
     reg r_i2c_send_byte_sda_ctrl;
     wire w_start_condition;
-    assign w_start_condition = (i_start | r_start) /*& i_clk & io_sda*/;
-	//always @(i_clk, rst) begin
-    always @(posedge i_clk or posedge rst) begin
+    assign w_start_condition = (i_start | r_start);
+	always @(posedge i_clk or posedge rst) begin
         if(rst) begin
             r_scl_en <= 1'b0;
             r_sda_en <= 1'b0;
             
             r_state <= IDLE;
             r_start <= 1'b0;
-            r_data_elements <= 'h0;
             r_new_data <= 1'b0;
             r_busy <= 1'b0;
             
@@ -109,7 +107,6 @@ module i2c_core (
                            to start the transmision, so we
                            need to save the start flag */
                         r_start <= 1'b1;
-                        r_data_elements <= i_data_elements;
                         r_busy <= 1'b1;
                     end
                     
@@ -150,7 +147,7 @@ module i2c_core (
                 
                 REQUEST_NEW_DATA: begin
                     /* request next data if needed*/
-                    if( (r_data_elements - 1) > 12'h0 ) begin
+                    if( i_new_data ) begin
                         if(r_new_data) begin
                             r_new_data <= 1'b0;
                             r_send_byte_data <= i_data;
@@ -177,15 +174,14 @@ module i2c_core (
                         /* Check if we need another transmission 
                            and set data for i2c_send_byte, it
                            will be read on the next falling edge*/
-                        if(r_data_elements > 12'h0) begin
-                            /* Prepare data for i2c_send_byte so
+                        if( i_new_data ) begin
+                           /* Prepare data for i2c_send_byte so
                               it can start transmit the next clock */
                             //r_send_byte_data <= i_data;
                             r_start_send_byte <= 1'b1;
                             //r_sda_en <= 1'b1;
                             r_sda_en <= 1'b0;
                             
-                            r_data_elements <= r_data_elements - 1'b1;
                             r_state <= SEND_DATA;
                         end
                         else begin
@@ -253,10 +249,8 @@ module i2c_core (
     assign o_busy = r_busy;
     assign o_new_data = r_new_data;
     assign w_sda = ( r_i2c_send_byte_sda_ctrl | w_send_byte_busy ) ? w_sda_out :
-    //assign w_sda = ( r_i2c_send_byte_sda_ctrl | r_o_busy ) ? w_sda_out :
                    ( (r_state == SEND_DATA) &  w_start_condition ) ? r_sda : r_sda;
     // Tri state assignment
-    //assign o_scl = ( r_scl_en ) ? i_clk : 1'bZ;
     assign o_scl = ( r_scl_en ) ? i_clk : 1'b1;
     //assign io_sda = ( r_sda_en | w_send_byte_busy ) ? w_sda : 1'bZ;
     assign io_sda = ( r_sda_en | r_o_busy ) ? w_sda : 1'bZ;

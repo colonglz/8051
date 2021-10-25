@@ -39,7 +39,7 @@ defparam clk_div_adc.DIVIDER_WIDTH = 4;
 
 adc128s022_spi adc128s022_spi_u (
  .rst(rst),
- .clk(clk_3M125Hz),
+ .clk(clk_3M125Hz), //195.31ksps
  .sclk(pin_sclk),
  .cs(pin_cs),
  .din(pin_din),

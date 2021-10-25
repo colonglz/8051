@@ -24,13 +24,14 @@ module oc8051_dac (
     wire clk_781K25Hz;
     wire clk_396K82Hz_n;
     assign clk_396K82Hz_n = ~clk_390K62Hz;
-
-    reg [11:0] r_buff [0:51];
+    
+    localparam MAXCOUNTER = 15; // No of samples in dac_sine_wave.in
+    reg [11:0] r_buff [0:MAXCOUNTER - 1];
 
     reg [7:0]  r_dac_data;
-    reg [11:0] r_data_elements;
     reg [5:0] r_counter;
-    localparam MAXCOUNTER = 52;
+    reg r_new_data;
+    
     reg r_dac_start;
     wire w_dac_new_data;
     wire w_dac_busy;
@@ -44,10 +45,9 @@ module oc8051_dac (
 
     // Porpuse: Drive the I2C low level block
     always @( posedge clk_396K82Hz_n or posedge rst ) begin
-    //always @( posedge clk_390K62Hz or posedge rst ) begin
         if(rst) begin
             r_dac_start <= 1'b0;
-            r_data_elements <= 12'h000;
+            r_new_data <= 1'b0;
             r_dac_data <= 8'h00;
             
             r_counter <= 6'h0;
@@ -59,10 +59,7 @@ module oc8051_dac (
                 IDLE: begin
                     if(1'b1/* Condition to start */) begin
                         r_dac_data <= {7'b1100010, 1'b0};
-                        //r_dac_address <= 7'b1100000; // DAC address
-                        //r_dac_read_nwrite <= 1'b0;// r_dac_read_nwrite = 1'b0 write data
-                        r_data_elements <= 12'hfff; //4096 elements to send
-                        //r_dac_data <= {4'h0, r_buff[r_counter][11:8]};
+                        r_new_data <= 1'b1;
                         
                         st_M <= STARTDAC;
                     end
@@ -113,8 +110,8 @@ module oc8051_dac (
                 default: begin
                 
                     r_dac_start <= 1'b0;
-                    r_data_elements <= 12'h000;
                     r_dac_data <= 8'h00;
+                    r_new_data <= 1'b0;
                     
                     st_M <= IDLE;
                 end
@@ -134,18 +131,14 @@ module oc8051_dac (
         .clk_out( clk_390K62Hz )
     );
     defparam clk_div_dac.DIVIDER = 64; // 400kHz
-    //defparam clk_div_dac.DIVIDER = 250; // 100kHz
     defparam clk_div_dac.DIVIDER_WIDTH = 6;
-    //defparam clk_div_dac.DIVIDER_WIDTH = 8;
     
     clk_div clk_div_dac_x2 (
         .clk_in( clk ),
         .clk_out( clk_781K25Hz )
     );
     defparam clk_div_dac_x2.DIVIDER = 32; // 800kHz
-    //defparam clk_div_dac_x2.DIVIDER = 125; //200kHz
     defparam clk_div_dac_x2.DIVIDER_WIDTH = 6;
-    //defparam clk_div_dac_x2.DIVIDER_WIDTH = 8;
 
     i2c_core dac(
         .rst(rst),
@@ -157,7 +150,7 @@ module oc8051_dac (
 
         .i_start(r_dac_start),
         .i_data(r_dac_data),
-        .i_data_elements(r_data_elements),
+        .i_new_data(r_new_data),
         .o_new_data(w_dac_new_data),
         .o_busy(w_dac_busy),
         

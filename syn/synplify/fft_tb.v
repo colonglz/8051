@@ -45,11 +45,14 @@ module fft_tb;
    wire 		source_eop;
    wire 		source_valid;
    wire [1:0]           source_error;
-   wire [23 - 1: 0] source_real;
-   wire [23 - 1: 0] source_imag;
+   wire [5:0] source_exp;   
+   wire [12 - 1: 0] source_real;
+   wire [12 - 1: 0] source_imag;
    parameter 		       NUM_FRAMES_c = 4;
-   parameter 		       MAXVAL_c = 2**(23 -1);
-   parameter 		       OFFSET_c = 2**(23);
+  parameter 		       MAXVAL_c = 2**(12 -1);
+   parameter 		       OFFSET_c = 2**(12);
+   parameter MAXVAL_EXP_c = 2**5;
+   parameter OFFSET_EXP_c = 2**6;
    integer  fftpts_array[NUM_FRAMES_c-1:0];
    
    
@@ -65,25 +68,24 @@ module fft_tb;
    wire end_output;
    
    integer fft_rf, fft_if;
-   integer fft_blksizef;
-   integer fft_inversef;
+   integer expf;   
    integer data_rf,data_if;           
    integer data_real_in_int,data_imag_in_int;
    integer fft_real_out_int,fft_imag_out_int;
+     integer exponent_out_int;
 
 initial
    begin
     
      fftpts_array[0]=1024;
-     fftpts_array[1]=16;
+     fftpts_array[1]=1024;
      fftpts_array[2]=1024;
-     fftpts_array[3]=16;
-     data_rf = $fopen("C:/Users/colon/Modular/8051/syn/synplify/fft_real_input.txt","r");
-     data_if = $fopen("C:/Users/colon/Modular/8051/syn/synplify/fft_imag_input.txt","r");
-     fft_rf = $fopen("C:/Users/colon/Modular/8051/syn/synplify/fft_real_output_ver.txt");
-     fft_if =$fopen("C:/Users/colon/Modular/8051/syn/synplify/fft_imag_output_ver.txt");
-     fft_blksizef = $fopen("C:/Users/colon/Modular/8051/syn/synplify/fft_blksize_report.txt");
-     fft_inversef = $fopen("C:/Users/colon/Modular/8051/syn/synplify/fft_inverse_report.txt");
+     fftpts_array[3]=1024;
+     data_rf = $fopen("fft_real_input.txt","r");
+     data_if = $fopen("fft_imag_input.txt","r");
+     fft_rf = $fopen("fft_real_output_ver.txt");
+     fft_if =$fopen("fft_imag_output_ver.txt");
+     expf = $fopen("fft_exponent_output_ver.txt");
      #0 clk = 1'b0;
      #0 reset_n = 1'b0;
      #92 reset_n = 1'b1;
@@ -234,7 +236,6 @@ initial
                     sink_real <= data_real_in_int;
                     ic_x = $fscanf(data_if,"%d",data_imag_in_int); 
 		    sink_imag <= data_imag_in_int;
-			//sink_imag<=12'b0;
 		    sink_valid <= 1'b1;
 		 end 
                else
@@ -257,20 +258,11 @@ initial
 	     fft_imag_out_int = source_imag;
 	     $fdisplay(fft_rf, "%d", (fft_real_out_int < MAXVAL_c) ? fft_real_out_int : fft_real_out_int - OFFSET_c);
              $fdisplay(fft_if, "%d", (fft_imag_out_int < MAXVAL_c) ? fft_imag_out_int : fft_imag_out_int - OFFSET_c);
+             exponent_out_int = source_exp;
+            $fdisplay(expf, "%d", (exponent_out_int < MAXVAL_EXP_c) ? exponent_out_int : exponent_out_int - OFFSET_EXP_c);
 	  end
 	end
 
-   //////////////////////////////////////////////////////////////////////////////////////////////
-   // Write blksize and inverse to a report file            
-   //////////////////////////////////////////////////////////////////////////////////////////////
-   always @ (posedge clk) 
-     begin
-	if((reset_n==1'b1) & (sink_valid == 1'b1 & sink_ready == 1'b1 & sink_sop == 1'b1))
-	  begin
-	     $fdisplay(fft_blksizef, "%d", fftpts_in);
-             $fdisplay(fft_inversef, "%d", inverse);
-           end
-     end
     ///////////////////////////////////////////////////////////////////////////////////////////////
    // FFT Module Instantiation                                                               
    /////////////////////////////////////////////////////////////////////////////////////////////
@@ -278,8 +270,6 @@ initial
 		      .clk(clk),
 		      .reset_n(reset_n),
 		      .inverse(inverse),
-		      .fftpts_in(fftpts_in),
-		      .fftpts_out(fftpts_out),
 		      .sink_real(sink_real),
 		      .sink_imag(sink_imag),
 		      .sink_sop(sink_sop),
@@ -291,6 +281,7 @@ initial
 		      .sink_ready(sink_ready),
 		      .source_real(source_real),
 		      .source_imag(source_imag),
+		      .source_exp(source_exp),
 		      .source_valid(source_valid),
 		      .source_sop(source_sop),
 		      .source_eop(source_eop)

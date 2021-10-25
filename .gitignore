@@ -1,3 +1,6 @@
 *.rpt
 *.bak
 *.bak*
+syn/synplify/db/
+syn/synplify/greybox_tmp/
+syn/synplify/incremental_db/

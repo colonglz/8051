@@ -25,7 +25,6 @@
 module fft (
 	clk,
 	reset_n,
-	fftpts_in,
 	inverse,
 	sink_valid,
 	sink_sop,
@@ -34,18 +33,17 @@ module fft (
 	sink_imag,
 	sink_error,
 	source_ready,
-	fftpts_out,
 	sink_ready,
 	source_error,
 	source_sop,
 	source_eop,
 	source_valid,
+	source_exp,
 	source_real,
 	source_imag);
 
 	input		clk;
 	input		reset_n;
-	input	[10:0]	fftpts_in;
 	input		inverse;
 	input		sink_valid;
 	input		sink_sop;
@@ -54,12 +52,12 @@ module fft (
 	input	[11:0]	sink_imag;
 	input	[1:0]	sink_error;
 	input		source_ready;
-	output	[10:0]	fftpts_out;
 	output		sink_ready;
 	output	[1:0]	source_error;
 	output		source_sop;
 	output		source_eop;
 	output		source_valid;
-	output	[22:0]	source_real;
-	output	[22:0]	source_imag;
+	output	[5:0]	source_exp;
+	output	[11:0]	source_real;
+	output	[11:0]	source_imag;
 endmodule
