@@ -16,7 +16,8 @@ module i2c_core (
     o_new_data,
     o_busy,
     
-    o_ack
+    o_ack,
+    o_hs_mode
 );
     parameter DATAWIDTH = 8;
     parameter MAXELEMENTS = 4094;
@@ -35,15 +36,18 @@ module i2c_core (
     output o_busy;
     
     output o_ack;
+    output o_hs_mode;
+    reg r_o_hs_mode = 1'b0;
     wire Rx_sda;
     
-    wire [2:0] w_core_state  /* synthesis noprune */;
-    reg [2:0] r_state = 3'b0 /* synthesis noprune */;
-    parameter IDLE = 0;
-    parameter SEND_DATA = 1;
-    parameter REQUEST_NEW_DATA = 2;
-    parameter WAIT_DATA_SEND = 3;
-    parameter STOP_CONDITION = 4;
+    wire [3:0] w_core_state  /* synthesis noprune */;
+    reg [3:0] r_state = 4'b0 /* synthesis noprune */;
+    localparam IDLE = 0;
+    localparam START_CONDITION = 1;
+    localparam SEND_DATA = 2;
+    localparam REQUEST_NEW_DATA = 3;
+    localparam WAIT_DATA_SEND = 4;
+    localparam STOP_CONDITION = 5;
     
     reg  r_scl_en = 1'b0;
     reg  r_sda_en = 1'b0;
@@ -85,10 +89,13 @@ module i2c_core (
     reg r_i2c_send_byte_sda_ctrl;
     wire w_start_condition;
     assign w_start_condition = (i_start | r_start);
+    reg r_enable_hs_mode;
+    reg r_first_byte;
 	always @(posedge i_clk or posedge rst) begin
         if(rst) begin
-            r_scl_en <= 1'b0;
-            r_sda_en <= 1'b0;
+            r_scl_en    <= 1'b0;
+            r_sda_en    <= 1'b0;
+            r_sda       <= 1'b1;
             
             r_state <= IDLE;
             r_start <= 1'b0;
@@ -98,6 +105,10 @@ module i2c_core (
             r_start_send_byte <= 1'b0;
             r_send_byte_data  <= 8'h00;
             r_i2c_send_byte_sda_ctrl <= 1'b0;
+            
+            r_enable_hs_mode    <= 1'b0;
+            r_first_byte        <= 1'b1;
+            //r_o_hs_mode         <= 1'b0;
         end
         else begin
             case(r_state)
@@ -107,7 +118,20 @@ module i2c_core (
                            to start the transmision, so we
                            need to save the start flag */
                         r_start <= 1'b1;
-                        r_busy <= 1'b1;
+                        r_busy  <= 1'b1;
+                        r_state <= START_CONDITION;
+                    end
+                    
+                end
+                
+                START_CONDITION: begin
+                    if(r_enable_hs_mode) begin
+                        //r_sda_en            <= 1'b0;
+                        r_enable_hs_mode    <= 1'b0;
+                        /* Prepare data for i2c_send_byte so
+                           it can start transmit the next clock */
+                        r_start_send_byte <= 1'b1;
+                        //r_start             <= 1'b1;
                     end
                     
                     if ( w_start_condition ) begin
@@ -142,6 +166,11 @@ module i2c_core (
                     
                     r_start_send_byte <= 1'b0;
                     
+                    if( r_send_byte_data == 8'h08 && r_first_byte) begin
+                        r_enable_hs_mode    <= 1'b1;
+                        r_first_byte        <= 1'b0;
+                    end
+                    
                     r_state <= REQUEST_NEW_DATA;
                 end
                 
@@ -149,9 +178,9 @@ module i2c_core (
                     /* request next data if needed*/
                     if( i_new_data ) begin
                         if(r_new_data) begin
-                            r_new_data <= 1'b0;
-                            r_send_byte_data <= i_data;
-                            r_state <= WAIT_DATA_SEND;
+                            r_new_data          <= 1'b0;
+                            r_send_byte_data    <= i_data;
+                            r_state             <= WAIT_DATA_SEND;
                         end
                         else begin
                             r_new_data <= 1'b1;
@@ -175,35 +204,51 @@ module i2c_core (
                            and set data for i2c_send_byte, it
                            will be read on the next falling edge*/
                         if( i_new_data ) begin
-                           /* Prepare data for i2c_send_byte so
-                              it can start transmit the next clock */
-                            //r_send_byte_data <= i_data;
-                            r_start_send_byte <= 1'b1;
-                            //r_sda_en <= 1'b1;
+                           
+                            // Disable sda control to allow ACK
                             r_sda_en <= 1'b0;
                             
-                            r_state <= SEND_DATA;
+                            if( r_enable_hs_mode ) begin
+                                //r_scl_en    <= 1'b0;
+                                //r_o_hs_mode <= 1'b1;
+                                r_start             <= 1'b1;
+                                r_sda               <= 1'b1;
+                                r_state     <= START_CONDITION;
+                                //r_state <= SEND_DATA;
+                            end
+                            else begin
+                                /* Prepare data for i2c_send_byte so
+                                   it can start transmit the next clock */
+                                r_start_send_byte <= 1'b1;
+                                
+                                r_state <= SEND_DATA;
+                            end
                         end
                         else begin
-                            r_state <= STOP_CONDITION;
+                            r_state     <= STOP_CONDITION;
                         end
                     end
                 end
                 
+                //WAIT_ACK_FINISH: begin
+                //    if()
+                //end
+                
                 STOP_CONDITION: begin
-                    // Here we supposue to came from a falling
-                    // edge, so we wait until a rasing edge
-                    if(i_clk) begin
-                        r_scl_en <= 1'b0;
-                        r_sda_en <= 1'b0;
-                        r_busy <= 1'b0;
-                        r_state <= IDLE;
+                    r_scl_en    <= 1'b0;
+                    if ( !r_scl_en ) begin
+                        r_sda_en    <= 1'b0;
+                        r_busy      <= 1'b0;
+                        r_first_byte    <= 1'b1;
+                        //r_o_hs_mode <= 1'b0;
+                        r_state     <= IDLE;
                     end
                 end
                 
                 default: begin
-                    r_busy <= 1'b0;
-                    r_state <= IDLE;
+                    r_busy      <= 1'b0;
+                    //r_o_hs_mode <= 1'b0;
+                    r_state     <= IDLE;
                 end
             endcase
         end
@@ -212,12 +257,18 @@ module i2c_core (
     always @(posedge i_clk_x2 or posedge rst) begin
         if(rst) begin
             r_ack <= 1'b0;
+            r_o_hs_mode <= 1'b0;
         end
         else begin
             if( (r_state == SEND_DATA || r_state == STOP_CONDITION) && 
                  !w_send_byte_busy && i_clk) begin
                 /* Save ACK */
                 r_ack <= Rx_sda;
+            end
+            
+            if( r_state == START_CONDITION && r_enable_hs_mode &&
+                 !w_send_byte_busy && i_clk) begin
+                r_o_hs_mode <= 1'b1;
             end
         end
     end
@@ -234,13 +285,15 @@ module i2c_core (
 	.i_data(r_send_byte_data)
     ) /* synthesis preserve */;
     
-    reg r_sda_out;
-    reg r_o_busy;
+    reg r_sda_out = 1'b1;
+    reg r_o_busy = 1'b0;
     
     // Giving a half i_clk delay
+    reg r_sda_2 = 1'b1;
     always@(posedge i_clk_x2) begin
         r_sda_out   <= w_sda_buffer;
         r_o_busy    <= w_send_byte_busy;
+        r_sda_2     <= r_sda;
     end
     assign w_sda_out = r_sda_out;
     
@@ -249,13 +302,16 @@ module i2c_core (
     assign o_busy = r_busy;
     assign o_new_data = r_new_data;
     assign w_sda = ( r_i2c_send_byte_sda_ctrl | w_send_byte_busy ) ? w_sda_out :
-                   ( (r_state == SEND_DATA) &  w_start_condition ) ? r_sda : r_sda;
+                   //( (r_state == SEND_DATA) &  w_start_condition ) ? r_sda : r_sda;
+                   ( (r_state == SEND_DATA) &  w_start_condition ) ? r_sda_2 : r_sda_2;
     // Tri state assignment
     assign o_scl = ( r_scl_en ) ? i_clk : 1'b1;
     //assign io_sda = ( r_sda_en | w_send_byte_busy ) ? w_sda : 1'bZ;
     assign io_sda = ( r_sda_en | r_o_busy ) ? w_sda : 1'bZ;
     assign Rx_sda = io_sda;
     assign o_ack = r_ack;
+    
+    assign o_hs_mode = r_o_hs_mode;
 
 endmodule
 

@@ -22,8 +22,13 @@ module oc8051_dac (
 
     wire clk_390K62Hz;
     wire clk_781K25Hz;
-    wire clk_396K82Hz_n;
-    assign clk_396K82Hz_n = ~clk_390K62Hz;
+    wire w_clk_dac_n;
+    
+    wire clk_3M125Hz;
+    wire clk_6M25Hz;
+    wire w_clk_dac;
+    wire w_clk_dac_x2;
+    wire w_hs_mode;
     
     localparam MAXCOUNTER = 15; // No of samples in dac_sine_wave.in
     reg [11:0] r_buff [0:MAXCOUNTER - 1];
@@ -36,15 +41,21 @@ module oc8051_dac (
     wire w_dac_new_data;
     wire w_dac_busy;
 
-    reg [1:0] st_M /* synthesis noprune */;
+    reg [2:0] st_M = 'h0 /* synthesis noprune */;
     localparam IDLE = 0;
     localparam STARTDAC = 1;
-    localparam WAITNEWDATAREQUEST = 2;
-    localparam WAITNEWDATAREQUEST2 = 3;
+    localparam SEND_HSMODE = 2;
+    localparam SEND_ADDRESS = 3;
+    localparam WAITNEWDATAREQUEST = 4;
+    localparam WAITNEWDATAREQUEST2 = 5;
 
+    reg [2:0] r_prev_state = 'h0;
+    always @( posedge w_clk_dac_n ) begin
+        r_prev_state <= st_M;
+    end
 
     // Porpuse: Drive the I2C low level block
-    always @( posedge clk_396K82Hz_n or posedge rst ) begin
+    always @( posedge w_clk_dac_n or posedge rst ) begin
         if(rst) begin
             r_dac_start <= 1'b0;
             r_new_data <= 1'b0;
@@ -58,6 +69,20 @@ module oc8051_dac (
             case(st_M)
                 IDLE: begin
                     if(1'b1/* Condition to start */) begin
+                        st_M <= SEND_HSMODE;
+                    end
+                end
+                
+                SEND_HSMODE: begin
+                    r_dac_data <= 8'h08;
+                    r_new_data <= 1'b1;
+                    
+                    st_M <= STARTDAC;
+                end
+                
+                SEND_ADDRESS: begin
+                    r_dac_start <= 1'b0;
+                    if ( w_dac_new_data ) begin
                         r_dac_data <= {7'b1100010, 1'b0};
                         r_new_data <= 1'b1;
                         
@@ -68,7 +93,10 @@ module oc8051_dac (
                 STARTDAC: begin
                         r_dac_start <= 1'b1;
                         
-                        st_M <= WAITNEWDATAREQUEST2;
+                        if ( r_prev_state ==  SEND_HSMODE)
+                            st_M <= SEND_ADDRESS;
+                        else
+                            st_M <= WAITNEWDATAREQUEST2;
                 end
                 
                 WAITNEWDATAREQUEST: begin
@@ -139,11 +167,30 @@ module oc8051_dac (
     );
     defparam clk_div_dac_x2.DIVIDER = 32; // 800kHz
     defparam clk_div_dac_x2.DIVIDER_WIDTH = 6;
+    
+    
+    clk_div clk_div_dac_hs (
+        .clk_in( clk ),
+        .clk_out( clk_3M125Hz )
+    );
+    defparam clk_div_dac_hs.DIVIDER = 8; // 3.125MHz
+    defparam clk_div_dac_hs.DIVIDER_WIDTH = 4;
+    
+    clk_div clk_div_dac_hs_x2 (
+        .clk_in( clk ),
+        .clk_out( clk_6M25Hz )
+    );
+    defparam clk_div_dac_hs_x2.DIVIDER = 4; // 6.25MkHz
+    defparam clk_div_dac_hs_x2.DIVIDER_WIDTH = 3;
+    
+    
+    
+    
 
     i2c_core dac(
         .rst(rst),
-        .i_clk(clk_390K62Hz),
-        .i_clk_x2(clk_781K25Hz),
+        .i_clk(w_clk_dac),
+        .i_clk_x2(w_clk_dac_x2),
 
         .o_scl(o_scl),
         .io_sda(io_sda),
@@ -154,9 +201,13 @@ module oc8051_dac (
         .o_new_data(w_dac_new_data),
         .o_busy(w_dac_busy),
         
-        .o_ack(o_ack)
+        .o_ack(o_ack),
+        .o_hs_mode(w_hs_mode)
     );
 
+    assign w_clk_dac_n = ~w_clk_dac;
 
+    assign w_clk_dac = w_hs_mode ? clk_3M125Hz : clk_390K62Hz;
+    assign w_clk_dac_x2 = w_hs_mode ? clk_6M25Hz : clk_781K25Hz;
 
 endmodule
