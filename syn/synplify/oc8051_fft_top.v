@@ -7,9 +7,7 @@ module oc8051_fft_top(
 	clk,
 	i_adc_input,
 	i_adc_input_ready,
-	o_dac_output,
-	
-	w_rasing_edge_adc_input_ready
+	o_dac_output
 );
 
 	parameter fftpts = 1024;
@@ -33,12 +31,11 @@ module oc8051_fft_top(
     reg[INPUTWIDTH - 1:0] sink_imag;
 	wire [10:0]    fftpts_in;
     wire [10:0]    fftpts_out;
-	wire 		inverse;
 	reg 		sink_sop;
     wire 		sink_eop;
 	wire 		source_ready;
 	wire 		sink_ready;
-	wire [1:0]           sink_error;
+	wire [1:0]  sink_error;
 	
 	wire 		source_sop;
 	wire 		source_eop;
@@ -48,11 +45,12 @@ module oc8051_fft_top(
     wire [SOURCEWIDTH - 1: 0] source_imag;
     wire	[5:0]	w_source_exp;
 	
-	reg 	    start;
 	reg [INPUTWIDTH - 1 : 0] r_cnt;
 	reg    end_test;
 	wire end_input;
 	wire end_output;
+    
+    wire w_input_buffer_full_rasing_edge;
 	
 	wire reset_n;
 	assign reset_n = ~rst;
@@ -60,8 +58,13 @@ module oc8051_fft_top(
    // Set FFT Direction     
    // '0' => FFT      
    // '1' => IFFT      
-   assign inverse = 1'b0; 
-
+    reg [2:0] r_fft_state = 'h0;
+    localparam IDLE = 0;
+    localparam FEED_ADC = 1;        // feed adc input to fft
+    localparam SAVE_FFT_OUTPUT = 2; // save fft output
+    localparam START_MEM_READ = 3;
+    localparam FEED_IFFT = 4;        // feed fft with fft output
+    localparam SCALE_IFFT_OUTPUT = 5;
 
   //no input error
   assign sink_error = 2'b0;
@@ -76,7 +79,7 @@ module oc8051_fft_top(
   
   // Filling up buffer
   reg reg_adc_input_ready_buff;
-  output w_rasing_edge_adc_input_ready;
+  wire w_rasing_edge_adc_input_ready;
   
   reg [9:0] reg_input_cnt = 10'h0;
   wire w_input_buffer_full;
@@ -86,13 +89,10 @@ module oc8051_fft_top(
 		reg_input_cnt   <= 10'h0;
         r_index_h       <= 'h0;
 	end
-	// In this if, may be missing another condition to stop
-	// the input of data if fft is working.
 	else if( w_rasing_edge_adc_input_ready ) begin
-		//reg_buff[reg_input_cnt] <= i_adc_input;
-        reg_buff[r_index_h] <= i_adc_input;
+		reg_buff[r_index_h] <= i_adc_input;
         if( r_index_h == totalbuffer - 1 ) begin
-            r_index_h       <= 'h0;
+            r_index_h   <= 'h0;
         end
         else begin
             r_index_h <= r_index_h + 1'b1;
@@ -102,9 +102,9 @@ module oc8051_fft_top(
 	end
   end
   
-  // Porpuse: capture the new index low for the
-  // circular buffer
-  reg [INPUTWIDTH:0] r_next_index_l;
+    // Porpuse: capture the new index low for the
+    // circular buffer
+    reg [INPUTWIDTH:0] r_next_index_l;
     always @(posedge clk or posedge rst) begin
         if(rst) begin
             r_index_l       <= 'h0;
@@ -114,61 +114,52 @@ module oc8051_fft_top(
             if(w_input_buffer_full_rasing_edge) begin
                 r_next_index_l  <= r_index_h;
             end
-            else if ( sink_eop ) begin
+            else if ( sink_eop & r_fft_state == FEED_ADC ) begin
                 r_index_l       <= r_next_index_l;
             end
         end
     end
-  // Porpuse: detect rasing edge of i_adc_input_ready
-  reg r_input_buffer_full_buff;
-  wire w_input_buffer_full_rasing_edge;
-  always @(posedge clk or posedge rst) begin
-	if(rst) begin
-		reg_adc_input_ready_buff <= 1'b0;
-        r_input_buffer_full_buff <= 1'b0;
-	end
-	else begin
-		reg_adc_input_ready_buff <= i_adc_input_ready;
-        r_input_buffer_full_buff <= w_input_buffer_full;
-	end
-  end
-  assign w_rasing_edge_adc_input_ready = (i_adc_input_ready & ~reg_adc_input_ready_buff) ? 1'b1 : 1'b0;
+    // Porpuse: detect rasing edge of i_adc_input_ready
+    reg r_input_buffer_full_buff;
+    
+    always @(posedge clk or posedge rst) begin
+        if(rst) begin
+            reg_adc_input_ready_buff <= 1'b0;
+            r_input_buffer_full_buff <= 1'b0;
+        end
+        else begin
+            reg_adc_input_ready_buff <= i_adc_input_ready;
+            r_input_buffer_full_buff <= w_input_buffer_full;
+        end
+    end
+    assign w_rasing_edge_adc_input_ready = (i_adc_input_ready & ~reg_adc_input_ready_buff) ? 1'b1 : 1'b0;
   
-  assign w_input_buffer_full = ( reg_input_cnt == fftpts-1 ) ? 1'b1 : 1'b0;
-  assign w_input_buffer_full_rasing_edge = (w_input_buffer_full & ~r_input_buffer_full_buff) ? 1'b1 : 1'b0;
+    assign w_input_buffer_full = ( reg_input_cnt == fftpts-1 ) ? 1'b1 : 1'b0;
+    assign w_input_buffer_full_rasing_edge = (w_input_buffer_full & ~r_input_buffer_full_buff) ? 1'b1 : 1'b0;
   
    ///////////////////////////////////////////////////////////////////////////////////////////////
    // All FFT MegaCore input signals are registered on the rising edge of the input clock, clk and 
    // all FFT MegaCore output signals are output on the rising edge of the input clock, clk. 
    //////////////////////////////////////////////////////////////////////////////////////////////
 
-  // start valid for first cycle to indicate that the buffer reading should start.
-  always @ (posedge clk)
-  begin
-     if (reset_n == 1'b0)
-       start <= 1'b1;
-     else
-       begin
-         if (sink_valid == 1'b1 & sink_ready == 1'b1)
-           start <= 1'b0;
-       end
-   end
-
-  //sop and eop asserted in first and last sample of data
+    //sop and eop asserted in first and last sample of data
     reg [INPUTWIDTH:0] r_sink_index;
     reg r_sink_index_saved;
     
-	always @ (posedge clk) begin
+	// Porpuse: provide the index from the ADC input buffer for data
+    //          sent to fft, each clock cycle r_cnt will
+    //          increase in 1 up to reach 1023. It will start
+    //          to count when sink_sop is asserted.
+    always @ (posedge clk) begin
 		if (reset_n == 1'b0) begin
             r_cnt               <= 'h0;
             r_sink_index        <= 'h0;
             r_sink_index_saved  <= 1'b0;
 		end
         else begin
-            if (sink_sop | r_sink_index_saved) begin
-            //if ( w_start_sink ) begin
+            //if (sink_sop | r_sink_index_saved) begin
+            if (r_fft_state == FEED_ADC | r_fft_state == FEED_IFFT | r_sink_index_saved) begin
                 if( !r_sink_index_saved ) begin
-                    //r_sink_index        <= r_index_l;
                     r_sink_index_saved  <= 1'b1;
                 end
                 
@@ -179,7 +170,7 @@ module oc8051_fft_top(
                     r_sink_index <= r_sink_index + 'h1;
                 end
                 
-                if (r_cnt == fftpts - 1) begin
+                if (r_cnt == fftpts) begin
                     r_cnt               <= 'h0;
                     r_sink_index_saved  <= 1'b0;
                 end
@@ -204,77 +195,171 @@ module oc8051_fft_top(
   
 
    // generate start and end of packet signals
-   //assign sink_sop = (r_cnt == 0 & w_input_buffer_full_rasing_edge) ? 1'b1 : 1'b0 ;
-   assign sink_eop = ( r_cnt == fftpts - 1 ) ? 1'b1 : 1'b0;
+   assign sink_eop = ( r_cnt == fftpts ) ? 1'b1 : 1'b0;
 
    //halt the input when done
-    always @(posedge clk)
-      begin
+    always @(posedge clk) begin
         if (reset_n == 1'b0)
           end_test <= 1'b0;
-        else
-          begin
+        else begin
             if (end_input == 1'b1)
-             end_test <= 1'b1; 
-          end
-      end
+                end_test <= 1'b1; 
+        end
+    end
    
    ///////////////////////////////////////////////////////////////////////////////////////////////
    // Read input data from files. Data is generated on the negative edge of the clock, clk, in the
    // testbench and registered by the core on the positive edge of the clock                                                                    \n";
    ///////////////////////////////////////////////////////////////////////////////////////////////
-   //integer rc_x;
-   //integer ic_x;
+   wire [11:0] w_fft_memory_o_data;
+   wire [11:0] w_fft_memory_o_data2;
+   reg r_fft_inverse;
+   reg r_fft_memory_rd_start;
+   reg r_sink_sop_flag = 1'b0;
    always @ (posedge clk) begin
 	  if(reset_n==1'b0) begin
-	     sink_real<=12'b0;
-	     sink_imag<=12'b0;
+	     sink_real  <=12'b0;
+	     sink_imag  <=12'b0;
 	     sink_valid <= 1'b0;
+         sink_sop   <= 1'b0;
+         r_fft_inverse <= 1'b0;
+         r_sink_sop_flag <= 1'b0;
 	  end
 	  else begin
-            // send in NUM_FRAMES_c of data or until the end of the file
-	     if(/*(end_test == 1'b1) ||*/ (end_input == 1'b1)) begin
-		    sink_real<=12'b0;
-		    sink_imag<=12'b0;
-		    sink_valid <= 1'b0;
+         // send in NUM_FRAMES_c of data or until the end of the file
+	     if( end_input == 1'b1 ) begin
+		    sink_real   <= 12'b0;
+		    sink_imag   <= 12'b0;
+		    sink_valid  <= 1'b0;
+            r_sink_sop_flag <= 1'b0;
 	     end
-	     //else if ((sink_valid == 1'b1 & sink_ready == 1'b1 ) ||
-                 //(start == 1'b1 & !(sink_valid == 1'b1 & sink_ready == 1'b0))) begin
-                 //(w_input_buffer_full == 1'b1 & !(sink_valid == 1'b1 & sink_ready == 1'b0))) begin
-                   //(w_start_sink)) begin 
-         else if( r_cnt == 0 & w_input_buffer_full_rasing_edge & sink_ready | sink_valid) begin   
-            sink_sop <= (r_cnt == 0 & w_input_buffer_full_rasing_edge);
+	     else if( r_fft_state == FEED_ADC | r_fft_state == FEED_IFFT /*| sink_valid*/) begin   
             
-            //sink_real <= reg_buff[r_sink_index];
-            sink_real <= {1'b0,reg_buff[r_sink_index][11:1]}; // Two's complement test
+            if( r_sink_sop_flag == 1'b0 ) begin
+                sink_sop <= 1'b1;
+                r_sink_sop_flag <= 1'b1;
+            end
+            else
+                sink_sop <= 1'b0;
             
-		    //sink_imag <= data_imag_in_int;
-			sink_imag<=12'b0;
-            if ( r_cnt == fftpts - 1  )
+            if (r_fft_state == FEED_ADC ) begin
+                                // Two's complement test
+                sink_real       <= {1'b0,reg_buff[r_sink_index][11:1]}; 
+                sink_imag       <=12'b0;
+                r_fft_inverse   <= 1'b0;
+            end
+            else begin
+                sink_real   <= w_fft_memory_o_data;
+                sink_imag   <= w_fft_memory_o_data2;
+                //sink_imag       <=12'b0;
+                r_fft_inverse <= 1'b1;
+            end
+            
+            if ( r_cnt == fftpts  ) begin
                 sink_valid <= 1'b0;
+                r_sink_sop_flag <= 1'b0;
+            end
             else
                 sink_valid <= 1'b1;
-		 end 
+		 end
          else begin
               sink_real <= sink_real;
               sink_imag <= sink_imag;
-              //sink_valid <= 1'b1;
               sink_valid <= sink_valid;
          end
 	  end
    end
+   
+    // fft state machine
+    // IDLE
+    // FEED_ADC         fill fft with adc input
+    // SAVE_FFT_OUTPUT  save to fft memory the fourier transmorm
+    // FEED_IFFT         feed fft with fft output
+    reg [11:0] r_source_scaled;
+    always @(posedge clk or posedge rst) begin
+        if( rst ) begin
+            r_fft_memory_rd_start <= 1'b0;
+            r_fft_state <= 'h0;
+        end
+        else begin
+            case ( r_fft_state )
+            IDLE: begin
+                if(r_cnt == 0 & w_input_buffer_full_rasing_edge & sink_ready)
+                    r_fft_state <= FEED_ADC;
+            end
+            
+            FEED_ADC: begin
+                if( sink_eop )
+                    r_fft_state <= SAVE_FFT_OUTPUT;
+            end
+            
+            SAVE_FFT_OUTPUT: begin
+                if( source_eop )
+                    r_fft_state <= START_MEM_READ;
+            end
+            
+            START_MEM_READ: begin
+                r_fft_memory_rd_start   <= 1'b1;
+                // two clock cycle delay
+                if(r_fft_memory_rd_start)
+                    r_fft_state <= FEED_IFFT;
+            end
+            
+            FEED_IFFT: begin
+                r_fft_memory_rd_start <= 1'b0;
+                r_source_scaled <= {source_real[11:5],5'h0}; //Scaling
+                if( sink_eop ) // temporal
+                    r_fft_state <= SCALE_IFFT_OUTPUT;
+            end
+            
+            SCALE_IFFT_OUTPUT: begin
+                if( source_valid ) begin
+                    if(source_real[6]) begin
+                        // Number too big, triming
+                        r_source_scaled <= { source_real[11], 11'h7ff }; //Scaling
+                    end
+                    else begin
+                        r_source_scaled <= {source_real[11],source_real[5:0],5'h0}; //Scaling
+                    end
+                   
+                    if(source_eop)
+                        r_fft_state <= IDLE;
+                end
+            end
+            
+            endcase
+        end
+    end
+   
+   
+   fft_output_handle fft_memory(
+    .i_clk( clk ),
+    .i_rst( rst ),
+    
+    .i_wr_start( source_sop ),
+    .i_data( source_real ),
+    .i_data2( source_imag ),
+    
+    .i_rd_start( r_fft_memory_rd_start ),
+    .o_data( w_fft_memory_o_data ),
+    .o_data2( w_fft_memory_o_data2 )
+    );
+    
+    
+    assign o_dac_output = r_source_scaled;
+   
 
 /////////////////////////////////////
 // FFT Module Instantiation                                                               
 //////////////////////////////////////
 fft dut(
 			.clk(clk),
-			.reset_n(!int_rst),
+			.reset_n(!rst),
 			//////////////////////
 			// Set FFT Direction     
 			// '0' => FFT      
 			// '1' => IFFT
-			.inverse(1'b0),
+			.inverse(r_fft_inverse),
 			//.fftpts_in(fftpts_in),
 			//.fftpts_out(fftpts_out),
 			.sink_real(sink_real),
@@ -295,3 +380,142 @@ fft dut(
 			) /* synthesis noprune */;
 	
 endmodule
+
+
+// This module saves the output of fft
+// and outputs saved data when requested.
+//
+// i_wr_start indicates the start of write_address
+//            operation. Each data will be saved
+//            with each i_clock cycle until reach
+//            ELEMENTS
+// i_data     Data to write in memory
+// i_rd_start indicates the start of read data
+//            it will start at 0 an finish at
+//            ElEMENTS
+// o_data     Read data.
+module fft_output_handle(
+    i_clk,
+    i_rst,
+    
+    i_wr_start,
+    i_data,
+    i_data2,
+    
+    i_rd_start,
+    o_data,
+    o_data2
+);
+    parameter DATA_WIDTH = 12;
+    localparam ELEMENTS = 1024;
+    localparam ELEMENTS_WIDTH = 10;
+    
+    input i_clk, i_rst;
+    input i_wr_start;
+    input [DATA_WIDTH -1:0] i_data;
+    input [DATA_WIDTH -1:0] i_data2;
+    
+    input i_rd_start;
+    output [DATA_WIDTH -1:0] o_data;
+    output [DATA_WIDTH -1:0] o_data2;
+    
+    wire w_mem_we;
+    reg r_start_hold = 1'b0;
+    //reg [ELEMENTS_WIDTH -1:0] index = 'h0;
+    
+    reg r_rd_start_hold = 1'b0;
+    reg [ELEMENTS_WIDTH -1:0] r_rd_index = 'h0;
+    reg [ELEMENTS_WIDTH -1:0] r_wr_index = 'h0;
+    
+    // Porpuse: Fill up the memory when i_wr_start
+    // is asserted.
+    always @(posedge i_clk or posedge i_rst) begin
+        if(i_rst) begin
+            r_start_hold    <= 1'b0;
+            r_wr_index      <= 'h0;
+        end
+        else begin
+            if( i_wr_start | r_start_hold ) begin
+                if(r_wr_index == (ELEMENTS - 1) ) begin
+                    r_start_hold    <= 1'b0;
+                    r_wr_index      <= 'h0;
+                end
+                else begin
+                    r_start_hold    <= 1'b1;
+                    r_wr_index      <= r_wr_index + 1'b1;
+                end
+            end
+        end
+    end
+    
+    // Porpuse: Send out data when requested
+    always @(posedge i_clk or posedge i_rst) begin
+        if ( i_rst ) begin
+            r_rd_start_hold <= 1'b0;
+            r_rd_index      <= 'h0;
+        end
+        else begin
+            if( i_rd_start | r_rd_start_hold ) begin
+                if( r_rd_index ==  (ELEMENTS-1) ) begin
+                    r_rd_start_hold <= 1'b0;
+                    r_rd_index      <= 'h0;
+                end
+                else begin
+                    r_rd_start_hold <= 1'b1;
+                    r_rd_index      <= r_rd_index + 1'b1;
+                end
+            end
+        end
+    end
+    
+    assign w_mem_we = i_wr_start | r_start_hold;
+    
+    fft_memory mem (
+    .q( o_data ),
+    .q2( o_data2 ),
+    .d( i_data ),
+    .d2( i_data2 ),
+    .write_address( r_wr_index ),
+    .read_address( r_rd_index ),
+    .we( w_mem_we ),
+    .clk( i_clk ) );
+    
+
+endmodule
+
+
+module fft_memory (
+    q,
+    q2,
+    d,
+    d2,
+    write_address,
+    read_address,
+    we,
+    clk
+);
+    parameter WIDTH = 12;
+    parameter LENGTH = 1024;
+    parameter LENGTHWIDTH = 10;
+    
+    output reg [WIDTH - 1:0] q;
+    output reg [WIDTH - 1:0] q2;
+    input [WIDTH - 1:0] d;
+    input [WIDTH - 1:0] d2;
+    input [LENGTHWIDTH - 1:0] write_address, read_address;
+    input we, clk;
+    
+    
+    reg [WIDTH - 1:0] mem [LENGTH - 1:0];
+    reg [WIDTH - 1:0] mem2 [LENGTH - 1:0]; // Second memory is for imaginary part
+    always @(posedge clk) begin
+        if (we) begin
+            mem[write_address] <= d;
+            mem2[write_address] <= d2;
+        end
+        q <= mem[read_address]; // q doesn't get d in this clock cycle
+        q2 <= mem2[read_address]; // q doesn't get d in this clock cycle
+    end
+    
+endmodule
+
