@@ -10,26 +10,26 @@ module oc8051_fft_top(
 	o_dac_output
 );
 
-	parameter fftpts = 1024;
+    parameter fftpts = 1024;
     localparam headroom = 40;
     localparam totalbuffer = fftpts + headroom;
-	parameter INPUTWIDTH = 12;
-	parameter OUTPUTWIDTH = 12;
+    parameter INPUTWIDTH = 12;
+    parameter OUTPUTWIDTH = 12;
     localparam SOURCEWIDTH = 12;
 
-	input rst, clk;
-	input i_adc_input_ready;
-	input [INPUTWIDTH - 1:0] i_adc_input;
-	output [OUTPUTWIDTH -1:0] o_dac_output;
+    input rst, clk;
+    input i_adc_input_ready;
+    input [INPUTWIDTH - 1:0] i_adc_input;
+    output [OUTPUTWIDTH -1:0] o_dac_output;
 
-	reg [INPUTWIDTH - 1:0] reg_buff[fftpts + headroom - 1:0];
+    reg [INPUTWIDTH - 1:0] reg_buff[fftpts + headroom - 1:0];
     reg [INPUTWIDTH:0] r_index_h;
     reg [INPUTWIDTH:0] r_index_l;
 
     reg sink_valid;
-    reg[INPUTWIDTH - 1:0] sink_real;
-    reg[INPUTWIDTH - 1:0] sink_imag;
-	wire [10:0]    fftpts_in;
+    reg signed [INPUTWIDTH - 1:0] sink_real;
+    reg signed [INPUTWIDTH - 1:0] sink_imag;
+    wire [10:0]    fftpts_in;
     wire [10:0]    fftpts_out;
 	reg 		sink_sop;
     wire 		sink_eop;
@@ -41,8 +41,8 @@ module oc8051_fft_top(
 	wire 		source_eop;
     wire 		source_valid;
 	wire [1:0]           source_error;
-	wire [SOURCEWIDTH - 1: 0] source_real;
-    wire [SOURCEWIDTH - 1: 0] source_imag;
+	wire signed [SOURCEWIDTH - 1: 0] source_real;
+    wire signed [SOURCEWIDTH - 1: 0] source_imag;
     wire	[5:0]	w_source_exp;
 	
 	reg [INPUTWIDTH - 1 : 0] r_cnt;
@@ -65,6 +65,13 @@ module oc8051_fft_top(
     localparam START_MEM_READ = 3;
     localparam FEED_IFFT = 4;        // feed fft with fft output
     localparam SCALE_IFFT_OUTPUT = 5;
+    
+    wire signed [5:0] w_source_exp_1;
+    wire signed [5:0] w_source_exp_2;
+    
+    wire w_filter_finish;
+    wire [11:0] w_filter_data;
+    wire [11:0] w_filter_data2;
 
   //no input error
   assign sink_error = 2'b0;
@@ -243,14 +250,20 @@ module oc8051_fft_top(
                 sink_sop <= 1'b0;
             
             if (r_fft_state == FEED_ADC ) begin
-                                // Two's complement test
+                // FFT receives a signed number, so we need to
+                // adapt reg_buff since ADC input is only positive
+                // numbers.
                 sink_real       <= {1'b0,reg_buff[r_sink_index][11:1]}; 
-                sink_imag       <=12'b0;
+                sink_imag       <= 12'b0;
                 r_fft_inverse   <= 1'b0;
             end
+            // FEED_IFFT
             else begin
-                sink_real   <= w_fft_memory_o_data;
-                sink_imag   <= w_fft_memory_o_data2;
+                //sink_real   <= w_fft_memory_o_data;
+                //sink_imag   <= w_fft_memory_o_data2;
+                sink_real   <= w_filter_data;
+                sink_imag   <= w_filter_data2;
+                
                 //sink_imag       <=12'b0;
                 r_fft_inverse <= 1'b1;
             end
@@ -275,11 +288,13 @@ module oc8051_fft_top(
     // FEED_ADC         fill fft with adc input
     // SAVE_FFT_OUTPUT  save to fft memory the fourier transmorm
     // FEED_IFFT         feed fft with fft output
-    reg [11:0] r_source_scaled;
+    reg signed [13:0] r_source_scaled;
+    reg r_delay2 = 1'b0;
     always @(posedge clk or posedge rst) begin
         if( rst ) begin
             r_fft_memory_rd_start <= 1'b0;
             r_fft_state <= 'h0;
+            r_delay2 <= 1'b0;
         end
         else begin
             case ( r_fft_state )
@@ -302,11 +317,14 @@ module oc8051_fft_top(
                 r_fft_memory_rd_start   <= 1'b1;
                 // two clock cycle delay
                 if(r_fft_memory_rd_start)
+                    r_delay2 <= 1'b1;
+                if( r_delay2 ) // Delay to accoutn for filter
                     r_fft_state <= FEED_IFFT;
             end
             
             FEED_IFFT: begin
                 r_fft_memory_rd_start <= 1'b0;
+                r_delay2 <= 1'b0;
                 r_source_scaled <= {source_real[11:5],5'h0}; //Scaling
                 if( sink_eop ) // temporal
                     r_fft_state <= SCALE_IFFT_OUTPUT;
@@ -314,14 +332,21 @@ module oc8051_fft_top(
             
             SCALE_IFFT_OUTPUT: begin
                 if( source_valid ) begin
-                    if(source_real[6]) begin
-                        // Number too big, triming
+                    /*
+                    if( source_real[10:6] != 5'b00000 && source_real[11] == 1'b0 ) begin
+                        // Positive number too big, triming 
                         r_source_scaled <= { source_real[11], 11'h7ff }; //Scaling
+                    end
+                    else if ( source_real[10:6] != 5'b11111 && source_real[11] == 1'b1 ) begin
+                        // Negative number too big, trimming
+                        r_source_scaled <= { source_real[11], 11'h000 }; //Scaling
                     end
                     else begin
                         r_source_scaled <= {source_real[11],source_real[5:0],5'h0}; //Scaling
                     end
-                   
+                    */
+                    r_source_scaled <= source_real <<< -(w_source_exp_1 + w_source_exp_2 + 10); //Scaling
+                    
                     if(source_eop)
                         r_fft_state <= IDLE;
                 end
@@ -330,54 +355,71 @@ module oc8051_fft_top(
             endcase
         end
     end
+    
+    assign w_source_exp_1 = ( r_fft_state == 2 && source_eop ) ? w_source_exp : w_source_exp_1;
+    assign w_source_exp_2 = ( r_fft_state == 5 && source_sop ) ? w_source_exp : w_source_exp_2;
+    
+   
+    fft_filter filter(
+        .rst( rst ),
+        .clk( clk ),
+    
+        .i_start( r_fft_memory_rd_start ),
+        .o_finish( w_filter_finish ),
+    
+        .i_data( w_fft_memory_o_data ), // Real part
+        .i_data2( w_fft_memory_o_data2 ), // Imaginary part
+        .o_data( w_filter_data ), // Real part
+        .o_data2( w_filter_data2 ) // Imaginary part
+    );
    
    
-   fft_output_handle fft_memory(
-    .i_clk( clk ),
-    .i_rst( rst ),
+    fft_output_handle fft_memory(
+        .i_clk( clk ),
+        .i_rst( rst ),
     
-    .i_wr_start( source_sop ),
-    .i_data( source_real ),
-    .i_data2( source_imag ),
+        .i_wr_start( source_sop ),
+        .i_data( source_real ),
+        .i_data2( source_imag ),
     
-    .i_rd_start( r_fft_memory_rd_start ),
-    .o_data( w_fft_memory_o_data ),
-    .o_data2( w_fft_memory_o_data2 )
+        .i_rd_start( r_fft_memory_rd_start ),
+        .o_data( w_fft_memory_o_data ),  // Real part
+        .o_data2( w_fft_memory_o_data2 ) // Imaginary part
     );
     
     
     assign o_dac_output = r_source_scaled;
    
 
-/////////////////////////////////////
-// FFT Module Instantiation                                                               
-//////////////////////////////////////
-fft dut(
-			.clk(clk),
-			.reset_n(!rst),
-			//////////////////////
-			// Set FFT Direction     
-			// '0' => FFT      
-			// '1' => IFFT
-			.inverse(r_fft_inverse),
-			//.fftpts_in(fftpts_in),
-			//.fftpts_out(fftpts_out),
-			.sink_real(sink_real),
-			.sink_imag(sink_imag),
-			.sink_sop(sink_sop),
-			.sink_eop(sink_eop),
-			.sink_valid(sink_valid),
-			.sink_error(sink_error),
-			.source_error(source_error),
-			.source_ready(source_ready),
-			.sink_ready(sink_ready),
-			.source_real(source_real),
-			.source_imag(source_imag),
-			.source_valid(source_valid),
-			.source_sop(source_sop),
-			.source_eop(source_eop),
-            .source_exp(w_source_exp)
-			) /* synthesis noprune */;
+    /////////////////////////////////////
+    // FFT Module Instantiation                                                               
+    //////////////////////////////////////
+    fft dut(
+        .clk(clk),
+        .reset_n(!rst),
+        //////////////////////
+        // Set FFT Direction     
+        // '0' => FFT      
+        // '1' => IFFT
+        .inverse(r_fft_inverse),
+        //.fftpts_in(fftpts_in),
+        //.fftpts_out(fftpts_out),
+        .sink_real(sink_real),
+        .sink_imag(sink_imag),
+        .sink_sop(sink_sop),
+        .sink_eop(sink_eop),
+        .sink_valid(sink_valid),
+        .sink_error(sink_error),
+        .source_error(source_error),
+        .source_ready(source_ready),
+        .sink_ready(sink_ready),
+        .source_real(source_real),
+        .source_imag(source_imag),
+        .source_valid(source_valid),
+        .source_sop(source_sop),
+        .source_eop(source_eop),
+        .source_exp(w_source_exp)
+    ) /* synthesis noprune */;
 	
 endmodule
 
@@ -519,3 +561,69 @@ module fft_memory (
     
 endmodule
 
+// This module will take in the output of fft
+// and apply the filter saved in fft_filter.in
+// output data should feed IFFT
+module fft_filter (
+    rst,
+    clk,
+    
+    i_start,
+    o_finish,
+    
+    i_data,
+    i_data2,
+    o_data,
+    o_data2
+);
+    input rst, clk;
+    input           i_start;
+    input   [11:0]  i_data;
+    input   [11:0]  i_data2;
+    output  [11:0]  o_data;
+    output  [11:0]  o_data2;
+    output          o_finish;
+    
+    reg     [11:0]  r_data = 'h0;
+    reg     [11:0]  r_data2 = 'h0;
+    
+    parameter LENGTH = 1024;
+    reg r_filter_buff[0:LENGTH -1];
+    reg r_start_hold = 1'b0;
+    
+    reg [9:0] r_counter = 'h0;
+    
+    always @(posedge clk or posedge rst) begin
+        if(rst) begin
+            r_start_hold    <= 1'b0;
+            r_counter       <= 'h0;
+            r_data          <= 'h0;
+            r_data2          <= 'h0;
+        end
+        else begin
+            if(i_start | r_start_hold) begin
+                if( r_counter == 'h0 & r_start_hold ) begin
+                    r_start_hold    <= 1'b0;
+                    r_counter       <= 'h0;
+                end
+                else begin
+                    r_start_hold    <= 1'b1;
+                    r_counter       <= r_counter + 1'b1;
+                end
+            
+                r_data  <= r_filter_buff[r_counter] ? i_data : 12'h0;
+                r_data2 <= r_filter_buff[r_counter] ? i_data2 : 12'h0;
+            end
+        end
+    end
+    
+    initial begin
+        $readmemb("C:/Users/colon/Modular/8051/syn/synplify/fft_filter.in", r_filter_buff);
+    end
+    
+    
+    assign o_data = r_data;
+    assign o_data2 = r_data2;
+    assign o_finish = (r_counter == 'h0 & r_start_hold) ? 1'b1 : 1'b0;
+
+endmodule

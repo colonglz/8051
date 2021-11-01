@@ -38,7 +38,7 @@
 
 set_global_assignment -name FAMILY "Cyclone IV E"
 set_global_assignment -name DEVICE EP4CE22F17C6
-set_global_assignment -name TOP_LEVEL_ENTITY oc8051_fpga_top
+set_global_assignment -name TOP_LEVEL_ENTITY oc8051_fft_top
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION "13.0 SP1"
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "18:24:25  SEPTEMBER 04, 2021"
 set_global_assignment -name LAST_QUARTUS_VERSION "13.0 SP1"
@@ -288,9 +288,6 @@ set_global_assignment -name EDA_TEST_BENCH_RUN_SIM_FOR "1 ms" -section_id oc8051
 set_global_assignment -name EDA_TEST_BENCH_MODULE_NAME oc8051_fft_top_tb -section_id oc8051_fft_top_tb
 set_global_assignment -name EDA_TEST_BENCH_FILE oc8051_fft_top_tb.v -section_id oc8051_fft_top_tb
 set_global_assignment -name VERILOG_TEST_BENCH_FILE fft_tb.v
-set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
-set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
-set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
 set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_ADVANCED_TRIGGER_ENTITY=basic,1," -section_id auto_signaltap_0
 set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_ENABLE_ADVANCED_TRIGGER=0" -section_id auto_signaltap_0
 set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_trigger_in[36] -to "oc8051_fft_top:fft_u|o_dac_output[0]" -section_id auto_signaltap_0
@@ -331,5 +328,8 @@ set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_INVERSION_MASK=00
 set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_INVERSION_MASK_LENGTH=181" -section_id auto_signaltap_0
 set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_NODE_CRC_LOWORD=11579" -section_id auto_signaltap_0
 set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_NODE_CRC_HIWORD=37185" -section_id auto_signaltap_0
+set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
+set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
+set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
 set_global_assignment -name SLD_FILE "C:/Users/colon/Modular/8051/syn/synplify/output_files/SignalTap_Analyzer_auto_stripped.stp"

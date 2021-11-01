@@ -24,13 +24,24 @@ add wave -noupdate -format Analog-Step -height 74 -label dut/sink_imag -max 149.
 add wave -noupdate -label dut/source_sop /oc8051_fft_top_tb/dut/source_sop
 add wave -noupdate -label dut/source_eop /oc8051_fft_top_tb/dut/source_eop
 add wave -noupdate -label dut/source_valid /oc8051_fft_top_tb/dut/source_valid
-add wave -noupdate -label dut/source_real -radix decimal /oc8051_fft_top_tb/dut/source_real
+add wave -noupdate -format Analog-Step -height 74 -label dut/source_real -max 514.0 -min -78.0 -radix decimal /oc8051_fft_top_tb/dut/source_real
 add wave -noupdate -format Analog-Step -height 74 -label dut/source_imag -max 149.0 -min -150.0 -radix decimal /oc8051_fft_top_tb/dut/source_imag
 add wave -noupdate -label dut/w_source_exp -radix decimal /oc8051_fft_top_tb/dut/w_source_exp
 add wave -noupdate -label dut/source_error /oc8051_fft_top_tb/dut/source_error
-add wave -noupdate -format Analog-Step -height 74 -label dut/r_source_scaled -max 1999.9999999999998 -radix decimal /oc8051_fft_top_tb/dut/r_source_scaled
+add wave -noupdate -label dut/w_source_exp_1 /oc8051_fft_top_tb/dut/w_source_exp_1
+add wave -noupdate -label dut/w_source_exp_2 /oc8051_fft_top_tb/dut/w_source_exp_2
+add wave -noupdate -format Analog-Step -height 74 -label dut/r_source_scaled -max 3103.9999999999995 -min -928.0 -radix decimal /oc8051_fft_top_tb/dut/r_source_scaled
+add wave -noupdate -divider Filter
+add wave -noupdate -label filter/clk /oc8051_fft_top_tb/dut/filter/clk
+add wave -noupdate -label filter/i_start /oc8051_fft_top_tb/dut/filter/i_start
+add wave -noupdate -label filter/i_data -radix decimal /oc8051_fft_top_tb/dut/filter/i_data
+add wave -noupdate -label filter/o_data -radix decimal /oc8051_fft_top_tb/dut/filter/o_data
+add wave -noupdate -label filter/o_finish /oc8051_fft_top_tb/dut/filter/o_finish
+add wave -noupdate -label filter/r_data -radix decimal /oc8051_fft_top_tb/dut/filter/r_data
+add wave -noupdate -label filter/r_start_hold /oc8051_fft_top_tb/dut/filter/r_start_hold
+add wave -noupdate -label filter/r_counter -radix unsigned /oc8051_fft_top_tb/dut/filter/r_counter
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {326439756 ps} 0}
+WaveRestoreCursors {{Cursor 1} {171610000 ps} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 150
 configure wave -valuecolwidth 67
@@ -46,4 +57,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {0 ps} {723091456 ps}
+WaveRestoreZoom {160854091 ps} {202060311 ps}
