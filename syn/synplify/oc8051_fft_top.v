@@ -7,7 +7,11 @@ module oc8051_fft_top(
 	clk,
 	i_adc_input,
 	i_adc_input_ready,
-	o_dac_output
+	o_dac_output,
+    
+    o_fifo_data,
+    o_fifo_wr_rqst,
+    i_fifo_wr_full
 );
 
     parameter fftpts = 1024;
@@ -16,6 +20,10 @@ module oc8051_fft_top(
     parameter INPUTWIDTH = 12;
     parameter OUTPUTWIDTH = 12;
     localparam SOURCEWIDTH = 12;
+    
+    output [11:0] o_fifo_data;
+    output o_fifo_wr_rqst;
+    input i_fifo_wr_full;
 
     input rst, clk;
     input i_adc_input_ready;
@@ -332,19 +340,6 @@ module oc8051_fft_top(
             
             SCALE_IFFT_OUTPUT: begin
                 if( source_valid ) begin
-                    /*
-                    if( source_real[10:6] != 5'b00000 && source_real[11] == 1'b0 ) begin
-                        // Positive number too big, triming 
-                        r_source_scaled <= { source_real[11], 11'h7ff }; //Scaling
-                    end
-                    else if ( source_real[10:6] != 5'b11111 && source_real[11] == 1'b1 ) begin
-                        // Negative number too big, trimming
-                        r_source_scaled <= { source_real[11], 11'h000 }; //Scaling
-                    end
-                    else begin
-                        r_source_scaled <= {source_real[11],source_real[5:0],5'h0}; //Scaling
-                    end
-                    */
                     r_source_scaled <= source_real <<< -(w_source_exp_1 + w_source_exp_2 + 10); //Scaling
                     
                     if(source_eop)
@@ -359,6 +354,42 @@ module oc8051_fft_top(
     assign w_source_exp_1 = ( r_fft_state == 2 && source_eop ) ? w_source_exp : w_source_exp_1;
     assign w_source_exp_2 = ( r_fft_state == 5 && source_sop ) ? w_source_exp : w_source_exp_2;
     
+    // Purpose: Fill up fifo with filtered data
+    reg r_fifo_wr_rqst  = 1'b0;
+    reg [11:0]r_fifo_data     = 'h0;
+    wire clk_n;
+    assign clk_n = ~clk;
+    always @(posedge clk_n or posedge rst) begin
+        if(rst) begin
+            r_fifo_wr_rqst  <= 1'b0;
+            r_fifo_data     <= 'h0;
+        end
+        else begin
+            if(r_fft_state      == SCALE_IFFT_OUTPUT && 
+               source_valid     == 1'b1              &&
+               i_fifo_wr_full   == 1'b0                 ) begin
+                
+                r_fifo_wr_rqst  <= 1'b1;
+                if ( r_source_scaled > 4095 ) begin
+                    r_fifo_data <= 12'hfff;
+                end
+                else if ( r_source_scaled < 0 ) begin
+                    r_fifo_data <= 12'h000;
+                end
+                else begin
+                    r_fifo_data <= r_source_scaled[11:0];
+                    //r_fifo_data <= r_source_scaled;
+                    //r_fifo_data <= 12'hAAA;
+                end
+            end
+            else begin
+                r_fifo_wr_rqst  <= 1'b0;
+                r_fifo_data <= 'h0;
+            end
+        end
+    end
+    assign o_fifo_data = r_fifo_data;
+    assign o_fifo_wr_rqst = r_fifo_wr_rqst;
    
     fft_filter filter(
         .rst( rst ),
@@ -598,7 +629,7 @@ module fft_filter (
             r_start_hold    <= 1'b0;
             r_counter       <= 'h0;
             r_data          <= 'h0;
-            r_data2          <= 'h0;
+            r_data2         <= 'h0;
         end
         else begin
             if(i_start | r_start_hold) begin

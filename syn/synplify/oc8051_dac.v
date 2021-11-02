@@ -8,8 +8,12 @@ module oc8051_dac (
 	io_sda,
 	o_scl,
     
-    o_ack
-	
+    o_ack,
+    
+	o_fifo_clk,
+    i_fifo_data,
+    i_fifo_rd_empty,
+    o_fifo_rd_rqst
 );
 
     input rst;
@@ -19,6 +23,10 @@ module oc8051_dac (
     
     output o_ack;
 
+    output o_fifo_clk;
+    input [11:0] i_fifo_data;
+    output o_fifo_rd_rqst;
+    input i_fifo_rd_empty;
 
     wire clk_390K62Hz;
     wire clk_781K25Hz;
@@ -40,14 +48,19 @@ module oc8051_dac (
     reg r_dac_start;
     wire w_dac_new_data;
     wire w_dac_busy;
+    
+    reg r_fifo_rd_rqst = 1'b0;
+    reg [11:0] r_fifo_data = 'h0;
+    reg r_fifo_data_rdy = 1'b0;
 
     reg [2:0] st_M = 'h0 /* synthesis noprune */;
     localparam IDLE = 0;
     localparam STARTDAC = 1;
     localparam SEND_HSMODE = 2;
     localparam SEND_ADDRESS = 3;
-    localparam WAITNEWDATAREQUEST = 4;
-    localparam WAITNEWDATAREQUEST2 = 5;
+    localparam SEND_BYTE_HIGH = 4;
+    localparam SEND_BYTE_LOW = 5;
+    localparam REQUEST_FIFO_DATA = 6;
 
     reg [2:0] r_prev_state = 'h0;
     always @( posedge w_clk_dac_n ) begin
@@ -55,6 +68,7 @@ module oc8051_dac (
     end
 
     // Porpuse: Drive the I2C low level block
+    reg r_rqst_fifo_data = 1'b0;
     always @( posedge w_clk_dac_n or posedge rst ) begin
         if(rst) begin
             r_dac_start <= 1'b0;
@@ -62,6 +76,7 @@ module oc8051_dac (
             r_dac_data <= 8'h00;
             
             r_counter <= 6'h0;
+            r_rqst_fifo_data <= 1'b0;
             
             st_M <= IDLE;
         end
@@ -95,14 +110,16 @@ module oc8051_dac (
                         
                         if ( r_prev_state ==  SEND_HSMODE)
                             st_M <= SEND_ADDRESS;
-                        else
-                            st_M <= WAITNEWDATAREQUEST2;
+                        else begin
+                            st_M <= REQUEST_FIFO_DATA;
+                            r_rqst_fifo_data <= 1'b1;
+                        end
                 end
                 
-                WAITNEWDATAREQUEST: begin
+                SEND_BYTE_HIGH: begin
                     r_dac_start <= 1'b0;
                     if ( w_dac_new_data ) begin
-                        r_dac_data <= r_buff[r_counter][7:0];
+                        r_dac_data <= r_fifo_data[7:0];
                         
                         
                         if( r_counter == (MAXCOUNTER - 1) ) begin
@@ -112,7 +129,8 @@ module oc8051_dac (
                             r_counter <= r_counter + 1'b1;
                         end
                         
-                        st_M <= WAITNEWDATAREQUEST2;
+                        st_M <= REQUEST_FIFO_DATA;
+                        r_rqst_fifo_data <= 1'b1;
                     end
                     else if ( !w_dac_busy ) begin
                         r_counter <= 6'h0;
@@ -121,17 +139,25 @@ module oc8051_dac (
                     end
                 end
                 
-                WAITNEWDATAREQUEST2: begin
+                SEND_BYTE_LOW: begin
                     r_dac_start <= 1'b0;
                     if ( w_dac_new_data ) begin
-                        r_dac_data <= {4'h0, r_buff[r_counter][11:8]};
+                        r_dac_data <= {4'h0, r_fifo_data[11:8]};
                         
-                        st_M <= WAITNEWDATAREQUEST;
+                        st_M <= SEND_BYTE_HIGH;
                     end
                     else if ( !w_dac_busy ) begin
                         r_counter <= 6'h0;
                         
                         st_M <= IDLE;
+                    end
+                end
+                
+                REQUEST_FIFO_DATA: begin
+                    r_rqst_fifo_data <= 1'b0;
+                    
+                    if( r_fifo_data_rdy == 1'b1 ) begin
+                        st_M <= SEND_BYTE_LOW;
                     end
                 end
                 
@@ -148,6 +174,35 @@ module oc8051_dac (
         end
     end
 
+    // Purpose: Request new data from fifo
+    always @(posedge w_clk_dac_n or posedge rst) begin
+        if(rst) begin
+            r_fifo_rd_rqst <= 1'b0;
+            r_fifo_data <= 'h000;
+            r_fifo_data_rdy <= 1'b0;
+        end
+        else begin
+            if(r_rqst_fifo_data == 1'b1) begin
+                if( i_fifo_rd_empty == 1'b0 ) begin
+                    r_fifo_rd_rqst <= 1'b1;
+                end
+                else begin
+                    r_fifo_data     <= 12'h000;
+                    r_fifo_data_rdy <= 1'b1;
+                end
+            end
+            
+            if( r_fifo_rd_rqst == 1'b1 ) begin
+                r_fifo_rd_rqst  <= 1'b0;
+                r_fifo_data     <= i_fifo_data;
+                r_fifo_data_rdy <= 1'b1;
+            end
+            
+            if( r_fifo_data_rdy == 1'b1 ) begin
+                r_fifo_data_rdy <= 1'b0;
+            end
+        end
+    end
 
     initial begin
         $readmemh("C:/Users/colon/Modular/8051/syn/synplify/dac_sine_wave.in", r_buff);
@@ -209,5 +264,8 @@ module oc8051_dac (
 
     assign w_clk_dac = w_hs_mode ? clk_3M125Hz : clk_390K62Hz;
     assign w_clk_dac_x2 = w_hs_mode ? clk_6M25Hz : clk_781K25Hz;
+    
+    assign o_fifo_clk = w_clk_dac;
+    assign o_fifo_rd_rqst = r_fifo_rd_rqst;
 
 endmodule

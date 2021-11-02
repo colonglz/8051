@@ -161,14 +161,37 @@ oc8051_adc oc8051_adc_u (
 );
 
 wire [11:0] o_dac_output;
+wire [11:0] w_fifo_data;
+wire w_fifo_wr_rqst;
+wire w_fifo_wr_full;
 
 oc8051_fft_top fft_u (
 	.rst( int_rst ),
 	.clk( clk ),
 	.i_adc_input( adc_DB ),
 	.i_adc_input_ready( adc_ready ),
-	.o_dac_output( o_dac_output )
+	.o_dac_output( o_dac_output ),
+    
+    .o_fifo_data( w_fifo_data ),
+    .o_fifo_wr_rqst( w_fifo_wr_rqst ),
+    .i_fifo_wr_full( w_fifo_wr_full )
 );
+
+fft_fifo	fft_fifo_inst (
+	.data ( w_fifo_data ),
+	.rdclk ( w_fifo_rd_clk ),
+	.rdreq ( w_fifo_rd_rqst ),
+	.wrclk ( clk ),
+	.wrreq ( w_fifo_wr_rqst ),
+	.q ( w_fifo_rd_data ),
+	.rdempty ( w_fifo_rd_empty ),
+	.wrfull ( w_fifo_wr_full )
+);
+
+wire w_fifo_rd_clk;
+wire [11:0] w_fifo_rd_data;
+wire w_fifo_rd_empty;
+wire w_fifo_rd_rqst;
 
 oc8051_dac dac(
 	.rst(int_rst),
@@ -176,8 +199,11 @@ oc8051_dac dac(
 	.io_sda(io_sda),
 	.o_scl(o_scl),
     
-    .o_ack(o_ack)
-	
+    .o_ack(o_ack),
+    .o_fifo_clk( w_fifo_rd_clk ),
+    .i_fifo_data( w_fifo_rd_data ),
+    .i_fifo_rd_empty( w_fifo_rd_empty ),
+	.o_fifo_rd_rqst( w_fifo_rd_rqst )
 );
 
     input_view input_view_u(

@@ -16,8 +16,13 @@ module oc8051_fft_top_tb;
     reg [DATA_WIDTH -1:0] r_adc_input;
     reg r_adc_input_rdy = 1'b0;
     
+    wire [11:0] w_fifo_data;
+    wire w_fifo_wr_rqst;
+    reg r_fifo_wr_full = 1'b0;
+    
     initial begin
         rst = 1'b0;
+        r_fifo_wr_full = 1'b0;
         #220
         rst = 1'b1;
         #220
@@ -59,8 +64,12 @@ module oc8051_fft_top_tb;
         .rst( rst ),
         .clk( clk ),
         .i_adc_input( r_adc_input ),
-        .i_adc_input_ready( r_adc_input_rdy )//,
+        .i_adc_input_ready( r_adc_input_rdy ),
         //.o_dac_output(  ) // Pending to implement and test
+        
+        .o_fifo_data( w_fifo_data ),
+        .o_fifo_wr_rqst( w_fifo_wr_rqst ),
+        .i_fifo_wr_full( r_fifo_wr_full )
     );
 
     initial begin
