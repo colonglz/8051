@@ -1,12 +1,31 @@
 // This file represents a filter
 // for frequency domain for a length of 1024 samples
 // Values generated with Filter_Generator.ods
-// 	Frequencies allowed
-//min	85.00E+00
-//max	100.00E+03
-//min	85.00E+00
-//max	100.00E+03
-
+//	Frequencies allowed	Frequencies Removed (Voz)
+//min	85.00E+00	300.00E+00
+//max	100.00E+03	3.40E+03
+//min	85.00E+00	300.00E+00
+//max	100.00E+03	3.40E+03
+0
+1
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
 0
 1
 1
@@ -990,44 +1009,24 @@
 1
 1
 1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
-1
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
+0
 1
 0

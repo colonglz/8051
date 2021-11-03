@@ -42,7 +42,9 @@ module oc8051_fpga_top (clk, rst,
     io_sda,
     o_scl,
     
-    i_view
+    i_view,
+    
+    i_fft_filter_selector
 	);
 	
     input [1:0] i_view;
@@ -65,6 +67,8 @@ output [7:0] p0_out, p1_out, p2_out, p3_out/*, dat_o*/;
 output o_clk_8MHz;
 output o_int_rst;
 
+input [1:0] i_fft_filter_selector;
+
 //wire cstb_o, ccyc_o, cack_i;
 //wire [15:0] cadr_o;
 //wire [31:0] cdat_i;
@@ -78,7 +82,9 @@ wire nrst;
 
 wire o_ack;
 
-assign p0_out = {7'h00,o_ack};
+wire [6:0] w_leds;
+
+assign p0_out = {w_leds,o_ack};
 
 oc8051_top oc8051_top_1(.wb_rst_i(int_rst), .wb_clk_i(clk_10Mhz),
 //
@@ -174,7 +180,9 @@ oc8051_fft_top fft_u (
     
     .o_fifo_data( w_fifo_data ),
     .o_fifo_wr_rqst( w_fifo_wr_rqst ),
-    .i_fifo_wr_full( w_fifo_wr_full )
+    .i_fifo_wr_full( w_fifo_wr_full ),
+    
+    .i_fft_filter_selector( i_fft_filter_selector )
 );
 
 fft_fifo	fft_fifo_inst (
@@ -204,6 +212,11 @@ oc8051_dac dac(
     .i_fifo_data( w_fifo_rd_data ),
     .i_fifo_rd_empty( w_fifo_rd_empty ),
 	.o_fifo_rd_rqst( w_fifo_rd_rqst )
+);
+
+oc8050_vuometro vuometro(
+    .i_data( w_fifo_rd_data ),
+    .o_leds( w_leds )
 );
 
     input_view input_view_u(

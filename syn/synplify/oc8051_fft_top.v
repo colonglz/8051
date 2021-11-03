@@ -11,7 +11,9 @@ module oc8051_fft_top(
     
     o_fifo_data,
     o_fifo_wr_rqst,
-    i_fifo_wr_full
+    i_fifo_wr_full,
+    
+    i_fft_filter_selector
 );
 
     parameter fftpts = 1024;
@@ -29,6 +31,8 @@ module oc8051_fft_top(
     input i_adc_input_ready;
     input [INPUTWIDTH - 1:0] i_adc_input;
     output [OUTPUTWIDTH -1:0] o_dac_output;
+    
+    input [1:0] i_fft_filter_selector;
 
     reg [INPUTWIDTH - 1:0] reg_buff[fftpts + headroom - 1:0];
     reg [INPUTWIDTH:0] r_index_h;
@@ -385,7 +389,7 @@ module oc8051_fft_top(
                     r_fifo_data <= 12'h000;
                 end
                 else begin
-                    r_fifo_data <= (r_source_scaled[11:0]*2) + 2048;
+                    r_fifo_data <= (r_source_scaled[11:0]*4) + 2048;
                     //r_fifo_data <= r_source_scaled;
                     //r_fifo_data <= 12'hAAA;
                 end
@@ -409,7 +413,9 @@ module oc8051_fft_top(
         .i_data( w_fft_memory_o_data ), // Real part
         .i_data2( w_fft_memory_o_data2 ), // Imaginary part
         .o_data( w_filter_data ), // Real part
-        .o_data2( w_filter_data2 ) // Imaginary part
+        .o_data2( w_filter_data2 ), // Imaginary part
+        
+        .i_filter_selector( i_fft_filter_selector )
     );
    
    
@@ -441,8 +447,6 @@ module oc8051_fft_top(
         // '0' => FFT      
         // '1' => IFFT
         .inverse(r_fft_inverse),
-        //.fftpts_in(fftpts_in),
-        //.fftpts_out(fftpts_out),
         .sink_real(sink_real),
         .sink_imag(sink_imag),
         .sink_sop(sink_sop),
@@ -613,7 +617,9 @@ module fft_filter (
     i_data,
     i_data2,
     o_data,
-    o_data2
+    o_data2,
+    
+    i_filter_selector
 );
     input rst, clk;
     input           i_start;
@@ -622,12 +628,16 @@ module fft_filter (
     output  [11:0]  o_data;
     output  [11:0]  o_data2;
     output          o_finish;
+    input [1:0]     i_filter_selector;
     
     reg     [11:0]  r_data = 'h0;
     reg     [11:0]  r_data2 = 'h0;
     
     parameter LENGTH = 1024;
     reg r_filter_buff[0:LENGTH -1];
+    reg r_filter_buff2[0:LENGTH -1];
+    reg r_filter_buff3[0:LENGTH -1];
+    reg r_filter_buff4[0:LENGTH -1];
     reg r_start_hold = 1'b0;
     
     reg [9:0] r_counter = 'h0;
@@ -653,15 +663,36 @@ module fft_filter (
                     //r_start_hold    <= 1'b1;
                     r_counter       <= r_counter + 1'b1;
                 end
-            
-                r_data  <= r_filter_buff[r_counter] ? i_data : 12'h0;
-                r_data2 <= r_filter_buff[r_counter] ? i_data2 : 12'h0;
+                
+                case (i_filter_selector)
+                    2'b00: begin
+                        r_data  <= r_filter_buff[r_counter] ? i_data : 12'h0;
+                        r_data2 <= r_filter_buff[r_counter] ? i_data2 : 12'h0;
+                    end
+                    
+                    2'b01: begin
+                        r_data  <= r_filter_buff2[r_counter] ? i_data : 12'h0;
+                        r_data2 <= r_filter_buff2[r_counter] ? i_data2 : 12'h0;
+                    end
+                    2'b10: begin
+                        r_data  <= r_filter_buff3[r_counter] ? i_data : 12'h0;
+                        r_data2 <= r_filter_buff3[r_counter] ? i_data2 : 12'h0;
+                    end
+                    2'b11: begin
+                        r_data  <= r_filter_buff4[r_counter] ? i_data : 12'h0;
+                        r_data2 <= r_filter_buff4[r_counter] ? i_data2 : 12'h0;
+                    end
+                endcase
+                
             end
         end
     end
     
     initial begin
         $readmemb("C:/Users/colon/Modular/8051/syn/synplify/fft_filter.in", r_filter_buff);
+        $readmemb("C:/Users/colon/Modular/8051/syn/synplify/fft_filter2.in", r_filter_buff2);
+        $readmemb("C:/Users/colon/Modular/8051/syn/synplify/fft_filter3.in", r_filter_buff3);
+        $readmemb("C:/Users/colon/Modular/8051/syn/synplify/fft_filter4.in", r_filter_buff4);
     end
     
     
