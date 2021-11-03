@@ -298,11 +298,13 @@ module oc8051_fft_top(
     // FEED_IFFT         feed fft with fft output
     reg signed [13:0] r_source_scaled;
     reg r_delay2 = 1'b0;
+    reg r_source_scaled_valid = 1'b0;
     always @(posedge clk or posedge rst) begin
         if( rst ) begin
             r_fft_memory_rd_start <= 1'b0;
             r_fft_state <= 'h0;
             r_delay2 <= 1'b0;
+            r_source_scaled_valid <= 1'b0;
         end
         else begin
             case ( r_fft_state )
@@ -322,18 +324,21 @@ module oc8051_fft_top(
             end
             
             START_MEM_READ: begin
-                r_fft_memory_rd_start   <= 1'b1;
+                
                 // two clock cycle delay
-                if(r_fft_memory_rd_start)
-                    r_delay2 <= 1'b1;
                 if( r_delay2 ) // Delay to accoutn for filter
                     r_fft_state <= FEED_IFFT;
+                else if(r_fft_memory_rd_start) begin
+                    r_delay2 <= 1'b1;
+                    r_fft_memory_rd_start <= 1'b0;
+                end
+                else begin
+                    r_fft_memory_rd_start   <= 1'b1;
+                end
             end
             
             FEED_IFFT: begin
-                r_fft_memory_rd_start <= 1'b0;
                 r_delay2 <= 1'b0;
-                r_source_scaled <= {source_real[11:5],5'h0}; //Scaling
                 if( sink_eop ) // temporal
                     r_fft_state <= SCALE_IFFT_OUTPUT;
             end
@@ -341,9 +346,12 @@ module oc8051_fft_top(
             SCALE_IFFT_OUTPUT: begin
                 if( source_valid ) begin
                     r_source_scaled <= source_real <<< -(w_source_exp_1 + w_source_exp_2 + 10); //Scaling
+                    r_source_scaled_valid <= 1'b1;
                     
-                    if(source_eop)
+                    if(source_eop) begin
                         r_fft_state <= IDLE;
+                        r_source_scaled_valid <= 1'b0;
+                    end
                 end
             end
             
@@ -365,26 +373,26 @@ module oc8051_fft_top(
             r_fifo_data     <= 'h0;
         end
         else begin
-            if(r_fft_state      == SCALE_IFFT_OUTPUT && 
-               source_valid     == 1'b1              &&
-               i_fifo_wr_full   == 1'b0                 ) begin
+            if(r_fft_state           == SCALE_IFFT_OUTPUT && 
+               r_source_scaled_valid == 1'b1              &&
+               i_fifo_wr_full        == 1'b0                 ) begin
                 
                 r_fifo_wr_rqst  <= 1'b1;
-                if ( r_source_scaled > 4095 ) begin
+                if ( (r_source_scaled + 2048) > 4095 ) begin
                     r_fifo_data <= 12'hfff;
                 end
-                else if ( r_source_scaled < 0 ) begin
+                else if ( (r_source_scaled + 2048) < 0 ) begin
                     r_fifo_data <= 12'h000;
                 end
                 else begin
-                    r_fifo_data <= r_source_scaled[11:0];
+                    r_fifo_data <= (r_source_scaled[11:0]*2) + 2048;
                     //r_fifo_data <= r_source_scaled;
                     //r_fifo_data <= 12'hAAA;
                 end
             end
             else begin
                 r_fifo_wr_rqst  <= 1'b0;
-                r_fifo_data <= 'h0;
+                r_fifo_data <= r_fifo_data;
             end
         end
     end
@@ -632,13 +640,17 @@ module fft_filter (
             r_data2         <= 'h0;
         end
         else begin
-            if(i_start | r_start_hold) begin
-                if( r_counter == 'h0 & r_start_hold ) begin
+            if( i_start ) begin
+                r_start_hold    <= 1'b1;
+            end
+            
+            if(r_start_hold) begin
+                if( r_counter == 'h3ff ) begin
                     r_start_hold    <= 1'b0;
                     r_counter       <= 'h0;
                 end
                 else begin
-                    r_start_hold    <= 1'b1;
+                    //r_start_hold    <= 1'b1;
                     r_counter       <= r_counter + 1'b1;
                 end
             

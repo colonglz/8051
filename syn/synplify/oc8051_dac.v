@@ -187,7 +187,7 @@ module oc8051_dac (
                     r_fifo_rd_rqst <= 1'b1;
                 end
                 else begin
-                    r_fifo_data     <= 12'h000;
+                    r_fifo_data     <= r_fifo_data;
                     r_fifo_data_rdy <= 1'b1;
                 end
             end
